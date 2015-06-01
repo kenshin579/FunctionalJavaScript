@@ -1,6 +1,6 @@
 console.warn("Collections________________________________________________________");
 //_.toArray(list): list인자를 array [..] 형태로 반환함
-console.info("_.toArray: ",  (function () { //=> [2, 3, 4]
+console.info("_.toArray: ", (function () { //=> [2, 3, 4]
     return _.toArray(arguments).slice(1);
 })(1, 2, 3, 4));
 
@@ -14,14 +14,14 @@ var sum = _.reduce([1, 2, 3], function (previousValue, currentValue) { //=> 6
     return previousValue + currentValue;
 }, initValue);
 
-console.info("_.reduce: ",  sum);
+console.info("_.reduce: ", sum);
 //참고: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
-console.info("reduce: ",  [0, 1, 2, 3, 4].reduce(function (previousValue, currentValue, index, array) {
+console.info("reduce: ", [0, 1, 2, 3, 4].reduce(function (previousValue, currentValue, index, array) {
     return previousValue + currentValue;
 }, 10));
 
 console.log({'a': 'AAA'});
-console.info("_.reduce: ",  _.reduce({'a': 'AAA'}, function (prevObj, value, key) {
+console.info("_.reduce: ", _.reduce({'a': 'AAA'}, function (prevObj, value, key) {
     console.log("prevObj: ", prevObj, "value:", value, "key:", key);
     //return previousValue + currentValue;
     return prevObj;
@@ -31,29 +31,29 @@ console.info("_.reduce: ",  _.reduce({'a': 'AAA'}, function (prevObj, value, key
 //_.reduceRight(list, iteratee, memo, [context]) :
 var list = [[0, 1], [2, 3], [4, 5]];
 var flat = _.reduceRight(list, function (a, b) { //=> [4, 5, 2, 3, 0, 1]
-    console.info("a: ",  a, " b: ",  b);
+    console.info("a: ", a, " b: ", b);
     return a.concat(b);
 }, []);
-console.info("flat: ",  flat);
-console.info("_.reduce: ",  _.reduce([100, 2, 25], function (acc, curr) {
-        console.log(acc, " / ", curr, " => ",  acc / curr);
+console.info("flat: ", flat);
+console.info("_.reduce: ", _.reduce([100, 2, 25], function (acc, curr) {
+        console.log(acc, " / ", curr, " => ", acc / curr);
         return acc / curr;
     }
 ));
-console.info("_.reduceRight: ",  _.reduceRight([100, 2, 25], function (acc, curr) {
+console.info("_.reduceRight: ", _.reduceRight([100, 2, 25], function (acc, curr) {
         console.log(acc + " / " + curr + " => " + acc / curr);
         return acc / curr;
     }
 ));
 
 //_.map(list, iteratee, [context]): 주어진 array의 각 요소에 함수를 실행하고 array를 return함
-console.info("_.map: ",  _.map([1, 2, 3], function (num) { //=> [3, 6, 9]
+console.info("_.map: ", _.map([1, 2, 3], function (num) { //=> [3, 6, 9]
     return num * 3;
 }));
-console.info("_.map: ",  _.map({one: 1, two: 2, three: 3}, function (num, key) { //=> [3, 6, 9]
+console.info("_.map: ", _.map({one: 1, two: 2, three: 3}, function (num, key) { //=> [3, 6, 9]
     return num * 3;
 }));
-console.info("_.map: ",  _.map([[1, 2], [3, 4]], _.first)); //=> [1, 3]
+console.info("_.map: ", _.map([[1, 2], [3, 4]], _.first)); //=> [1, 3]
 
 //_.sortBy(list, iteratee, [context]): Returns a (stably) sorted copy of list, ranked in ascending order by the
 // results of running each value through iteratee
@@ -69,46 +69,46 @@ console.info(JSON.stringify(_.sortBy(stooges, 'name')));
 var evens = _.filter([1, 2, 3, 4, 5, 6], function (num) {
     return num % 2 == 0;
 }); //=> [2, 4, 6]
-console.info("evens: ",  evens);
+console.info("evens: ", evens);
 
 //_.find(list, predicate, [context]): predicate 함수가 true가 되는 첫번째 요소를 return함
 var even = _.find([1, 2, 3, 4, 5, 6], function (num) { //=> 2
     return num % 2 == 0;
 });
-console.log("_.find: ",  even);
+console.log("_.find: ", even);
 
 //_.reject(list, predicate, [context]) : predicate함수가 false 인것만 array로 반환 (_.filter와 정반대인 함수임)
 var odds = _.reject([1, 2, 3, 4, 5, 6], function (num) {
     return num % 2 == 0;
 }); //=> [1, 3, 5]
-console.log("_.reject: ",  odds);
+console.log("_.reject: ", odds);
 
 //_.every(list, [predicate], [context]): list의 모든 값이 predicate함수의 truth인 경우에 true를 반환함  , alias: _.all
-console.info("_.every: ",  _.every([1, false, 3, 4]), _.isNumber); //todo: =>이건 제대로 동작을 안함
-console.info("_.every: ",  _.every([1, 2, 3, 4], _.identity));
+console.info("_.every: ", _.every([1, false, 3, 4]), _.isNumber); //todo: =>이건 제대로 동작을 안함
+console.info("_.every: ", _.every([1, 2, 3, 4], _.identity));
 //_.some(list, [predicate], [context]): predicate함수의 true가 하나라도 있으면 true를 반환함 , alias: any
-console.log("_.some: ",  _.some([null, 0, 'yes', false]));
-console.log("_.some: ",  _.some([1, 2, 'c', 4], _.isString));
+console.log("_.some: ", _.some([null, 0, 'yes', false]));
+console.log("_.some: ", _.some([1, 2, 'c', 4], _.isString));
 
 //_.sortBy(list, iteratee, [context]): iteratee 함수에 의해서 ascending order로 정렬후 copy 버전을 반환함
-console.info("_.sortBy: ",  _.sortBy([1, 2, 3, 4, 5, 6], function (num) {
+console.info("_.sortBy: ", _.sortBy([1, 2, 3, 4, 5, 6], function (num) {
     return Math.sin(num);
 })); //=> [5, 4, 6, 3, 1, 2]
 
 var stooges = [{name: 'moe', age: 40}, {name: 'larry', age: 50}, {name: 'curly', age: 60}];
-console.info("_.sortBy: ",  JSON.stringify(_.sortBy(stooges, 'name')));
+console.info("_.sortBy: ", JSON.stringify(_.sortBy(stooges, 'name')));
 //=> [{name: 'curly', age: 60}, {name: 'larry', age: 50}, {name: 'moe', age: 40}];
 
 //_.groupBy(list, iteratee, [context]) : iteratee함수에 의해서 group별로 나뉨
-console.info("_.groupBy: ",  JSON.stringify(_.groupBy([1.3, 2.1, 2.4], function (num) {
+console.info("_.groupBy: ", JSON.stringify(_.groupBy([1.3, 2.1, 2.4], function (num) {
     return Math.floor(num);
 }))); //=> {1: [1.3], 2: [2.1, 2.4]}
 
-console.info("_.groupBy: ",  JSON.stringify(_.groupBy(['one', 'two', 'three'], 'length')));
+console.info("_.groupBy: ", JSON.stringify(_.groupBy(['one', 'two', 'three'], 'length')));
 //=> {3: ["one", "two"], 5: ["three"]}
 
 //_.countBy(list, iteratee, [context]): iteratee함수에 의해서 구릅별로 나뉘고 나서의 count를 return함
-console.info("_.countBy: ",  JSON.stringify(_.countBy([1, 2, 3, 4, 5], function (num) { //=> {odd: 3, even: 2}
+console.info("_.countBy: ", JSON.stringify(_.countBy([1, 2, 3, 4, 5], function (num) { //=> {odd: 3, even: 2}
     return num % 2 == 0 ? 'even' : 'odd';
 })));
 
@@ -119,32 +119,42 @@ console.info("_.pluck: ", _.pluck(stooges, 'name')); //=> ["moe", "larry", "curl
 console.log("");
 console.warn("Arrays________________________________________________________");
 //_.first(array, [n]): array에서 첫번째 요소를 return함
-console.info("_.first: ",  _.first([5, 4, 3, 2, 1]));
+console.info("_.first: ", _.first([5, 4, 3, 2, 1]));
 //_.rest(array, [index]): index까지를 제외한 나머지 요소가 array로 return됨
-console.info("_.rest: ",  _.rest([5, 4, 3, 2, 1]));
-console.info("_.rest: ",  _.rest([5, 4, 3, 2, 1], 3));
+console.info("_.rest: ", _.rest([5, 4, 3, 2, 1]));
+console.info("_.rest: ", _.rest([5, 4, 3, 2, 1], 3));
 
 //_.zip(*arrays): 첫번째 position, 두번째 position을 함께 merge함
-console.info("_.zip: ",  _.zip( //=> [["moe", 30, true], ["larry", 40, false], ["curly", 50, false]]
+console.info("_.zip: ", _.zip( //=> [["moe", 30, true], ["larry", 40, false], ["curly", 50, false]]
     ['moe', 'larry', 'curly'],
     [30, 40, 50],
     [true, false, false]
 ));
 
-console.info("_.zip: ",  _.zip( //=>[[1, 'a'],[2, 'b']]
+console.info("_.zip: ", _.zip( //=>[[1, 'a'],[2, 'b']]
     [1, 2],
     ['a', 'b']
 ));
 
 //_.range([start], stop, [step]): range를 만들어줌
-console.info("_.range: ",  _.range(10));         //=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-console.info("_.range: ",  _.range(1, 11));      //=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-console.info("_.range: ",  _.range(0, 30, 5));   //=> [0, 5, 10, 15, 20, 25]
-console.info("_.range: ",  _.range(0, -10, -1)); //=> [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
-console.info("_.range: ",  _.range(0));          //=> []
+console.info("_.range: ", _.range(10));         //=> [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+console.info("_.range: ", _.range(1, 11));      //=> [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+console.info("_.range: ", _.range(0, 30, 5));   //=> [0, 5, 10, 15, 20, 25]
+console.info("_.range: ", _.range(0, -10, -1)); //=> [0, -1, -2, -3, -4, -5, -6, -7, -8, -9]
+console.info("_.range: ", _.range(0));          //=> []
 //_.object(list, [values]) : Converts arrays into objects.
 console.info("_.object: ", _.object(['moe', 'larry', 'curly'], [30, 40, 50])); //=> {moe: 30, larry: 40, curly: 50}
 console.info("_.object: ", _.object([['moe', 30], ['larry', 40], ['curly', 50]])); //=> {moe: 30, larry: 40, curly: 50}
+
+console.log("");
+console.warn("Functions________________________________________________________");
+//_.bind(function, object, *arguments) :
+var func = function (greeting) {
+    return greeting + ': ' + this.name
+};
+
+func = _.bind(func, {name: 'moe'}, 'hi');
+console.info("_.bind:", func()); //=> 'hi: moe'
 
 console.log("");
 console.warn("Object________________________________________________________");
@@ -161,7 +171,7 @@ _.chain([1, 2, 3, 200]) //=> [4, 40000]
     .value();
 
 //_.keys(object) : keys만 추출함
-console.info("_.keys: ",  _.keys({one: 1, two: 2, three: 3})); //=> ["one", "two", "three"]
+console.info("_.keys: ", _.keys({one: 1, two: 2, three: 3})); //=> ["one", "two", "three"]
 //_.values(object): value만 추출함
 _.values({one: 1, two: 2, three: 3}); //=> [1, 2, 3]
 
@@ -189,16 +199,16 @@ var object = {
         return 'nonsense';
     }
 };
-console.info("_.result: ",  _.result(object, 'cheese')); //=> "crumpets"
-console.info("_.result: ",  _.result(object, 'stuff')); //=> "nonsense"
-console.info("_.result: ",  _.result(object, 'meat', 'ham')); //=> "ham"
+console.info("_.result: ", _.result(object, 'cheese')); //=> "crumpets"
+console.info("_.result: ", _.result(object, 'stuff')); //=> "nonsense"
+console.info("_.result: ", _.result(object, 'meat', 'ham')); //=> "ham"
 
-console.info("_.result: ",  _.result([1, 2, 3], "reverse")); //=> "ham"
+console.info("_.result: ", _.result([1, 2, 3], "reverse")); //=> "ham"
 
 //_.identity(value) : same value를 반환함
 //underscore에서는 default iteratee로 사용됨
 var stooge = {name: 'moe'};
-console.info("_.identity: ",  stooge === _.identity(stooge));//=> true
+console.info("_.identity: ", stooge === _.identity(stooge));//=> true
 
 console.log("");
 console.warn("Chaining________________________________________________________");
@@ -214,9 +224,9 @@ var youngest = _.chain(stooges) //=> "moe is 21"
     .first()
     .value();
 
-console.info("_.chain: ",  JSON.stringify(youngest));
+console.info("_.chain: ", JSON.stringify(youngest));
 //_(obj).value(): wrapped object된 객체에서 value을 추출함
-console.info("_.value: ",  _([1, 2, 3]).value()); //=> [1, 2, 3]
+console.info("_.value: ", _([1, 2, 3]).value()); //=> [1, 2, 3]
 
 console.log("");
 console.warn("기타________________________________________________________");

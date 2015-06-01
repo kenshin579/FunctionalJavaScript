@@ -92,7 +92,27 @@ function globalThis() {
     return this;
 }
 
-console.info("globalThis: ", globalThis());
+//call메서드를 이용해서 'this' 레퍼런스를 원하는 값으로 설정할 있다.
+console.info("globalThis: ", globalThis()); //=> Window 전역 객체
+console.info("globalThis: " + globalThis.call('barnabas'));     //=> barnabas
+console.info("globalThis: " + globalThis.apply('orsulak', [])); //=> orsulak
+
+var nopeThis = _.bind(globalThis, 'nope'); //globalThis의 this 객체에 'nope'을 설정함
+console.info("nopeThis: " + nopeThis.call('wat')); //=> 'nope';
+
+var target = {
+    name: 'the right value',
+    aux: function () {
+        return this.name;
+    },
+    act: function () {
+        return this.aux();
+    }
+};
+
+//console.info("target.act.call:", target.act.call('wat')); //Uncaught TypeError: this.aux is not a function
+_.bindAll(target, 'aux', 'act');
+console.info("target.act.call:", target.act.call('wat')); //=>the right value
 
 //function strangeIdentity(n) {
 //    // intentionally strange
