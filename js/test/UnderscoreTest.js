@@ -148,7 +148,8 @@ console.info("_.object: ", _.object([['moe', 30], ['larry', 40], ['curly', 50]])
 
 console.log("");
 console.warn("Functions________________________________________________________");
-////_.bind(function, object, *arguments) : 함수를 object에 bind시킨다. 이 의미는 함수가 실행될때마다 this의 값이 object가 된다.
+////_.bind(function, object, *arguments) : 함수를 object에 bind시킨다.
+//이 의미는 함수가 실행될때마다 this의 값이 object가 된다.
 var func = function (greeting) { //gretting <- arguments
     return greeting + ': ' + this.name
 };

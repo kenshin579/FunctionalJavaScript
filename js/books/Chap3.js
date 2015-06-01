@@ -121,79 +121,116 @@ console.info("target.aux.call:", target.aux.call('wat')); //=>the right value
 console.info("target.act.call:", target.act.call('wat')); //=>the right value
 
 //3.4 함수 스코프:
-//function strangeIdentity(n) {
-//    // intentionally strange
-//    for(var i=0; i<n; i++);
-//    return i;
-//}
-//
-//strangeIdentity(138);
-////=> 138
-//
-//function strangeIdentity(n) {
-//    var i;
-//    for(i=0; i<n; i++);
-//    return i;
-//}
-//
-//function strangerIdentity(n) {
-//    // intentionally stranger still
-//    for(this['i'] = 0; this['i']<n; this['i']++);
-//    return this['i'];
-//}
-//
-//strangerIdentity(108);
-////=> 108
-//
-//function createScaleFunction(FACTOR) {
-//    return function(v) {
-//        return _.map(v, function(n) {
-//            return (n * FACTOR);
-//        });
-//    };
-//}
-//
-//var scale10 = createScaleFunction(10);
-//
-//scale10([1,2,3]);
-////=> [10, 20, 30]
-//
-//function createWeirdScaleFunction(FACTOR) {
-//    return function(v) {
-//        this['FACTOR'] = FACTOR;
-//        var captures = this;
-//
-//        return _.map(v, _.bind(function(n) {
-//            return (n * this['FACTOR']);
-//        }, captures));
-//    };
-//}
-//
-//var scale10 = createWeirdScaleFunction(10);
-//
-//scale10.call({}, [5,6,7]);
-////=> [50, 60, 70];
-//
-//function makeAdder(CAPTURED) {
-//    return function(free) {
-//        return free + CAPTURED;
-//    };
-//}
-//
-//var add10 = makeAdder(10);
-//
-//add10(32);
-////=> 42
-//
-//function averageDamp(FUN) {
-//    return function(n) {
-//        return average([n, FUN(n)]);
-//    }
-//}
-//
-//var averageSq = averageDamp(function(n) { return n * n });
-//averageSq(10);
-////=> 55
+function strangeIdentity(n) {
+    // intentionally strange
+    for (var i = 0; i < n; i++);
+    return i;
+}
+
+console.info("strangeIdentity: ", strangeIdentity(138)); //=> 138
+
+function strangeIdentity(n) {
+    var i;
+    for (i = 0; i < n; i++);
+    return i;
+}
+
+function strangerIdentity(n) {
+    // intentionally stranger still
+    console.log("  > this: ", this); //i: 108으로 세팅이 됨
+    for (this['i'] = 0; this['i'] < n; this['i']++); //여기서 this는 전역객체 window를 가리킨다.
+    return this['i'];
+}
+
+console.info("strangeIdentity: ", strangerIdentity(108)); //=> 108
+console.info("i:", i); //실제로 전역 객체의 값을 바꿨음.
+console.info("strangeIdentity.call: ", strangerIdentity.call({}, 10000)); //=> 10000
+
+//todo: 이 부분 잘 이해가 안된다.
+//clone을 사용하면 전역 컨텍스트를 넘겨주는 문제를 해결할 수 있다
+function f() {
+    this['a'] = 200;
+    return this['a'] + this['b'];
+}
+
+var globals = {'b': 2};
+console.info("_.clone: ", f.call(globals)); //=> 202
+console.log("  > globals:", globals);
+console.info("_.clone: ", f.call(_.clone(globals))); //=> 202
+console.log("  > globals:", globals);
+
+//3.5 클로저: 근처에서 만들어진 변수를 '캡처'하는 함수다
+//- closure is a function having accessing to the parent scope, even after the parent function has closed
+
+function whatWasTheLocal() {
+    var CAPTURED = "Oh hai";
+    return function () {
+        return "The local was : " + CAPTURED;
+    };
+}
+var reportLocal = whatWasTheLocal();
+console.info("whatWasTheLocal: ", whatWasTheLocal()()); //=>The local was : Oh hai
+console.info("reportLocal: ", reportLocal()); //=>The local was : Oh hai
+
+//클로저는 지역 변수만 캡처할 수 있는 것은 아니다. 함수 인자도 갭처할 수 있다 (todo: 잘 이해가 안됨)
+function createScaleFunction(FACTOR) {
+    console.log("FACTOR: ", FACTOR);
+    return function (v) {
+        return _.map(v, function (n) {
+            var test = "frank";
+            return (n * FACTOR); //외부 factor 변수에 접근할 수 있고 내부안에서 작업함
+        });
+    };
+}
+
+var scale10 = createScaleFunction(10); //여기서 넘겨줬는데 아래에서 기억을 하고 있음
+console.log("scale10: ", scale10([1, 2, 3])); //=> [10, 20, 30]
+
+//클로저 simulation
+function createWeirdScaleFunction(FACTOR) {
+    return function (v) {
+        this['FACTOR'] = FACTOR;
+        var captures = this;
+        console.log("  > captures: ", captures);
+
+        return _.map(v,
+            _.bind(function (n) { //_.bind은 함수가 실행될때마다 this의 객체가 captures로 설정된다는 것
+                return (n * this['FACTOR']);
+            }, captures)
+        );
+    };
+}
+
+var scale10 = createWeirdScaleFunction(10);
+console.info("scale10:", scale10.call({}, [5, 6, 7])); //=> [50, 60, 70];
+
+//캡처된 변수: 지역적인 선언없이(전달되지도 않았으면 지역에서 정의되지 않은) 어떤 함수에서 변수를 사용한다면 캡처된 변수다
+function makeAdder(CAPTURED) {
+    return function (free) {
+        return free + CAPTURED;
+    };
+}
+
+var add10 = makeAdder(10);
+console.info("add10: ", add10(32)); //=> 42
+
+var add1024 = makeAdder(1024);
+console.info("add1024: ", add1024(11)); //=> 1035
+console.info("add1024: ", add10(98)); //=> 108
+
+function averageDamp(FUN) {
+    return function (n) {
+        return average([n, FUN(n)]);
+    }
+}
+
+var averageSq = averageDamp(function (n) { //함수를 갭처함
+    return n * n
+});
+console.info("averageSq: ", averageSq(10)); //=> 55
+
+//세도잉
+
 //
 //function complement(PRED) {
 //    return function() {
