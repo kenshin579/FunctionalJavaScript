@@ -109,11 +109,18 @@ var target = {
         return this.aux();
     }
 };
+console.info("target:", target.aux());                   //=> target: the right value
+console.info("target:", target.aux.call(target, 'wat')); //=> target: the right value
 
-//console.info("target.act.call:", target.act.call('wat')); //Uncaught TypeError: this.aux is not a function
-_.bindAll(target, 'aux', 'act');
+//todo: 잘 이해가 안됨.
+//console.info("target.act.call:", target.act.call('wat'));
+//=> Uncaught TypeError: this.aux is not a function <- 이건 value값이 function처럼 호출될때 오류가 발생함
+
+_.bindAll(target, 'aux', 'act'); //aux, act 함수가 실행될때마다 target 객체(this)로 실행되로록 bind 시켜줌
+console.info("target.aux.call:", target.aux.call('wat')); //=>the right value
 console.info("target.act.call:", target.act.call('wat')); //=>the right value
 
+//3.4 함수 스코프:
 //function strangeIdentity(n) {
 //    // intentionally strange
 //    for(var i=0; i<n; i++);
