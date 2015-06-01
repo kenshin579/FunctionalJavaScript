@@ -229,7 +229,35 @@ var averageSq = averageDamp(function (n) { //함수를 갭처함
 });
 console.info("averageSq: ", averageSq(10)); //=> 55
 
-//세도잉
+//세도잉:
+var name = "Fogus";
+var name = "Renamed";
+console.info("name:", name); //=> Renamed
+
+var shadowed = 0;
+function argShadow(shadowed) {
+    return ["Value is", shadowed].join(' ');
+}
+console.info(argShadow(108));   //=> Value is 108
+console.info(argShadow());      //=> Value is <-- 인자를 넘겨주지 않아도 세도우 바인딩이 유호함을 확인할 수 있음
+
+function varShadow(shadowed) {
+    var shadowed = 4320000;
+    return ["Value is", shadowed].join(' ');
+}
+console.info(varShadow(108));   //=> argShadow
+console.info(argShadow());      //=> Value is
+
+//세도잉이 발생하지 않도록 이름 짓는 규칙에 주의를 기울여야 한다
+function captureShadow(SHADOWED) {
+    return function (SHADOWED) { //여기서 인자로 사용됨 (108이 shadowed되어 버림)
+        return SHADOWED + 1;
+    }
+}
+var closureShadow = captureShadow(108);
+console.info("closureShadow: ", closureShadow(2)); //=> 3
+
+//3.5.2 클로저 사용하기
 
 //
 //function complement(PRED) {
