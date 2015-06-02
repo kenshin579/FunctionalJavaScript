@@ -229,7 +229,7 @@ var averageSq = averageDamp(function (n) { //함수를 갭처함
 });
 console.info("averageSq: ", averageSq(10)); //=> 55
 
-//세도잉:
+//세도잉: 변수가 특정 스코프에 정의되어 있는 상태에서 하위스코프에서 같은 이름으로 다른 변수를 정의할 때 변수 세도잉이 발생함
 var name = "Fogus";
 var name = "Renamed";
 console.info("name:", name); //=> Renamed
@@ -258,24 +258,41 @@ var closureShadow = captureShadow(108);
 console.info("closureShadow: ", closureShadow(2)); //=> 3
 
 //3.5.2 클로저 사용하기
+//클로저에서는 클로저가 만들어질 당시에 캡처한 값의 레퍼런스(찬뱡형 PRED)를 캡처한다
+function complement(PRED) {
+    return function () {
+        return !PRED.apply(null, _.toArray(arguments)); //반환되는 함수는 PRED를 캡쳐한다
+    };
+}
 
-//
-//function complement(PRED) {
-//    return function() {
-//        return !PRED.apply(null, _.toArray(arguments));
-//    };
-//}
-//
-//function isEven(n) { return (n%2) === 0 }
-//
-//var isOdd = complement(isEven);
-//
-//isOdd(2);
-////=> false
-//
-//isOdd(413);
-////=> true
-//
+function isEven(n) {
+    return (n % 2) === 0
+}
+
+var isOdd = complement(isEven);
+console.info("isOdd:", isOdd(2));   //=> false
+console.info("isOdd:", isOdd(413)); //=> true
+
+//isEven의 새 레퍼런스를 만들었으므로 콜로저 isOdd에는 아무영향이 없다.
+function isEven(n) {
+    return false;
+}
+
+console.info("isEven:", isEven(10)); //=> false
+console.info("isOdd:", isOdd(13));   //=> true
+console.info("isOdd:", isOdd(12));   //=> true
+
+function showObject(OBJ) {
+    return function () {
+        return OBJ;
+    };
+}
+
+var o = {a: 42};
+var showO = showObject(o);
+console.info("showO:", showO()); //=> {a:42}
+
+
 //function plucker(FIELD) {
 //    return function(obj) {
 //        return (obj && obj[FIELD]);
