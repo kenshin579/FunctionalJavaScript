@@ -292,23 +292,48 @@ var o = {a: 42};
 var showO = showObject(o);
 console.info("showO:", showO()); //=> {a:42}
 
+//변수 o의 레퍼런스가 클로저의 내부와 외부에 모두 존재하므로 o가 바뀌면서 두 경계의 값이 서로 엉키게 된다.
+//- 일반적으로 캡처된 변수의 노출은 최소화한다.
+o.newField = 108;
+console.info("showO:", showO()); //=> {a: 42, newField: 108}
 
-//function plucker(FIELD) {
-//    return function(obj) {
-//        return (obj && obj[FIELD]);
-//    };
-//}
-//
-//var best = {title: "Infinite Jest", author: "DFW"};
-//
-//var getTitle = plucker('title');
-//
-//getTitle(best);
-////=> "Infinite Jest"
-//
-//var books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
-//
-//var third = plucker(2);
-//
-//third(books);
-////=> {title: "Botchan"}
+//익명 함수 내에서 만들어진 갭처된 변수 PRIVATE가 두 클로저에 비공개로 되어 있어서 두 함수를 호출하는 것
+//이외에 접근할 방법이 없다
+var pingpong = (function () {
+    var PRIVATE = 0;
+    return {
+        inc: function (n) {
+            return PRIVATE += n;
+        },
+        dec: function (n) {
+            return PRIVATE -= n;
+        }
+    };
+})();
+
+console.info("pingpong.inc: ", pingpong.inc(10)); //=> 10
+console.info("pingpong.dec: ", pingpong.dec(7)); //=> 3
+
+//다른 함수를 추가해도 역시 안전하다.
+pingpong.div = function (n) {
+    return PRIVATE / n
+};
+//console.info("pingpong.div: ", pingpong.div(3)); //=> PRIVATE is not defined
+
+//3.5.3 추상화 도구 클로저
+//plucker함수는 (배열이나 객체 같은) 연상 구조체를 키로 받아서 주어진 구조체에서 키에 해당하는 값을 반환하는 함수를
+function plucker(FIELD) {
+    return function (obj) {
+        return (obj && obj[FIELD]);
+    };
+}
+
+var best = {title: "Infinite Jest", author: "DFW"};
+var getTitle = plucker('title');
+console.info("getTitle:", getTitle(best)); //=> "Infinite Jest"
+
+var books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
+var third = plucker(2);
+console.info("third:", third(books)); //=> {title: "Botchan"}
+
+console.info(JSON.stringify(_.filter(books, getTitle))); //=> [{"title":"Chthon"},{"title":"Botchan"}]
