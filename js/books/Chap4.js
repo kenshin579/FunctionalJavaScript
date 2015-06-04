@@ -116,120 +116,135 @@ var g = always(function () {
 console.info("always:", f() === g()); //=> false
 console.info("always:", repeatedly(3, always("Hello"))); //=> ["Hello", "Hello", "Hello"]
 
-
+//반환되는 함수가 클로저이다
+//함수형 스타일에서는 메서드를 호출할 대상을 인자로 받는 형식을 선호한다
 function invoker(NAME, METHOD) {
-    return function (target /* args ... */) {
+    return function (target /* args ... */) { //args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]}
         if (!existy(target)) fail("Must provide a target");
 
         var targetMethod = target[NAME];
         var args = _.rest(arguments);
+        console.log("   > arguments:", JSON.stringify(arguments)); //=> [0,[[1,2,3]]]
+        console.log("   > args:", JSON.stringify(args)); //=> [0,[[1,2,3]]]
 
-        return doWhen((existy(targetMethod) && METHOD === targetMethod), function () {
+        return doWhen((existy(targetMethod) && METHOD === targetMethod), function () { //todo: 왜 existy가 필요한지는 잘 모르겠음.
             return targetMethod.apply(target, args);
         });
     };
 };
 
 var rev = invoker('reverse', Array.prototype.reverse);
-console.info("rev:", JSON.stringify(_.map([[1, 2, 3]], rev))); //=> [[3,2,1]]
-//
-//function uniqueString(len) {
-//    return Math.random().toString(36).substr(2, len);
-//};
-//
-//uniqueString(10);
-////=> "3rm6ww5w0x"
-//
-//function uniqueString(prefix) {
-//    return [prefix, new Date().getTime()].join('');
-//};
-//
-//uniqueString("argento");
-////=> "argento1356107740868"
-//
-//function makeUniqueStringFunction(start) {
-//    var COUNTER = start;
-//
-//    return function(prefix) {
-//        return [prefix, COUNTER++].join('');
-//    }
-//};
-//
-//var uniqueString = makeUniqueStringFunction(0);
-//
-//uniqueString("dari");
-////=> "dari0"
-//
-//uniqueString("dari");
-////=> "dari1"
-//
-//var generator = {
-//    count: 0,
-//    uniqueString: function(prefix) {
-//        return [prefix, this.count++].join('');
-//    }
-//};
-//
-//generator.uniqueString("bohr");
-////=> bohr0
-//
-//generator.uniqueString("bohr");
-////=> bohr1
-//
-//var omgenerator = (function(init) {
-//    var COUNTER = init;
-//
-//    return {
-//        uniqueString: function(prefix) {
-//            return [prefix, COUNTER++].join('');
-//        }
-//    };
-//})(0);
-//
-//omgenerator.uniqueString("lichking-");
-////=> "lichking-0"
-//
-//var nums = [1,2,3,null,5];
-//
-//_.reduce(nums, function(total, n) { return total * n });
-////=> 0
-//
-//function fnull(fun /*, defaults */) {
-//    var defaults = _.rest(arguments);
-//
-//    return function(/* args */) {
-//        var args = _.map(arguments, function(e, i) {
-//            return existy(e) ? e : defaults[i];
-//        });
-//
-//        return fun.apply(null, args);
-//    };
-//};
-//
-//var safeMult = fnull(function(total, n) { return total * n }, 1, 1);
-//
-//_.reduce(nums, safeMult);
-////=> 30
-//
-//function defaults(d) {
-//    return function(o, k) {
-//        var val = fnull(_.identity, d[k]);
-//        return o && val(o[k]);
-//    };
-//}
-//
-//function doSomething(config) {
-//    var lookup = defaults({critical: 108});
-//
-//    return lookup(config, 'critical');
-//}
-//
-//doSomething({critical: 9});
-////=> 9
-//
-//doSomething({});
-////=> 108
-//
+console.log("invoker:", rev);
+console.info("rev:", JSON.stringify(_.map([[1, 2, 3]], rev))); //=> [[3,2,1]] //todo: 잘 이해가 안감!!!
+
+function argsTest(target) {
+    console.log("  > arguments", JSON.stringify(arguments));
+}
+
+console.info("argsTest:", argsTest([1, 2, 3], [3, 4, 5])); //=> {"0":[1,2,3],"1":[3,4,5]}
+
+
+//4.2.1 고차원 함수로 인자 갭처하기
+var add100 = makeAdder(100); //고차원 함수를 구현하려면 다른 함수를 반환하는 함수가 필요함
+console.info("add100:", add100(38));
+
+//4.2.2 변수를 갭쳐하는 이유
+function uniqueString(len) {
+    return Math.random().toString(36).substr(2, len);
+};
+
+console.info("uniqueString(len):", uniqueString(10)); //=> "3rm6ww5w0x"
+
+function uniqueString(prefix) {
+    return [prefix, new Date().getTime()].join('');
+};
+
+console.info("uniqueString(prefix):", uniqueString("argento")); //=> "argento1356107740868"
+
+function makeUniqueStringFunction(start) {
+    var COUNTER = start;
+    return function (prefix) {
+        return [prefix, COUNTER++].join('');
+    }
+};
+
+var uniqueString = makeUniqueStringFunction(0);
+console.info("uniqueString:", uniqueString("ghost")); //=> "ghost0"
+console.info("uniqueString:", uniqueString("dari")); //=> "dari1"
+
+var generator = {
+    count: 0,
+    uniqueString: function (prefix) {
+        return [prefix, this.count++].join('');
+    }
+};
+console.info("generator:", generator.uniqueString("bohr")); //=> bohr0
+console.info("generator:", generator.uniqueString("bohr")); //=> bohr1
+
+//위 코드는 함수형이 아니라는 점외에도 안전하지 않다는 것이 단점이다
+//- count를 재할당
+generator.count = "gotchar";
+console.info(generator.uniqueString("bohr")); //=> bohrNaN
+
+
+//- 동적으로 바인딩됨
+console.info("generator.uniqueString.call:", generator.uniqueString.call({count: 1337}, "bohr")); //=>bohr1337
+
+//counter를 숨기는 방법: IIE로 숨김
+var omgenerator = (function (init) {
+    var COUNTER = init;
+
+    return {
+        uniqueString: function (prefix) {
+            return [prefix, COUNTER++].join('');
+        }
+    };
+})(0);
+
+console.info("omgenerator:", omgenerator.uniqueString("lichking-")); //=> "lichking-0"
+console.info("omgenerator:", omgenerator.uniqueString("lichking-")); //=> "lichking-1"
+
+//4.2.3 값이 존재하지 않는 상황을 지켜주는 함수: fnull
+var nums = [1, 2, 3, null, 5];
+console.info("_.reduce:", _.reduce(nums, function (total, n) {
+    console.log("   > total:", total, " n:", n);
+    return total * n
+})); //=> 0
+console.log("3 * null =>", 3 * null); //test
+
+function defaults(d) {
+    return function (o, k) {
+        var val = fnull(_.identity, d[k]);
+        return o && val(o[k]);
+    };
+}
+
+function doSomething(config) {
+    var lookup = defaults({critical: 108});
+
+    return lookup(config, 'critical');
+}
+console.info("doSomething:", doSomething({critical: 9})); //=> 9
+console.info("doSomething:", doSomething({})); //=> 108
+
+function fnull(fun /*, defaults */) {
+    var defaults = _.rest(arguments);
+
+    return function (/* args */) {
+        var args = _.map(arguments, function (e, i) {
+            return existy(e) ? e : defaults[i];
+        });
+
+        return fun.apply(null, args);
+    };
+};
+
+var safeMult = fnull(function (total, n) {
+    return total * n
+}, 1, 1);
+
+console.info("safeMult:", _.reduce(nums, safeMult)); //=> 30
+
 //function checker(/* validators */) {
 //    var validators = _.toArray(arguments);
 //
