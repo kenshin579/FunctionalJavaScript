@@ -206,84 +206,122 @@ console.info("omgenerator:", omgenerator.uniqueString("lichking-")); //=> "lichk
 
 //4.2.3 값이 존재하지 않는 상황을 지켜주는 함수: fnull
 var nums = [1, 2, 3, null, 5];
+
 console.info("_.reduce:", _.reduce(nums, function (total, n) {
     console.log("   > total:", total, " n:", n);
     return total * n
 })); //=> 0
 console.log("3 * null =>", 3 * null); //test
 
-function defaults(d) {
+function fnull(fun /*, defaults */) {
+    var DEFAULTS = _.rest(arguments);
+    console.log("   fnull > arguments:", arguments);
+    //console.log("   > defaults:", DEFAULTS);
+
+    return function (/* args */) { //safeMulti에서 넘겨온 arguments를 나타낸다.
+        console.log("      | fnull.func arguments:", arguments); //=> [1, 2, 1, Array[5]] [init, curr, key, context]
+        var args = _.map(arguments, function (e, i) {
+            console.log("      | fnull.func prev:", e, " curr:", i, " defaults:", DEFAULTS[i]);
+            return existy(e) ? e : DEFAULTS[i];
+        }); //args를 새롭게 채워서 함수를 실행하도록 함
+
+        console.log("      | fnull.func = args:", args);
+        return fun.apply(null, args);
+    };
+};
+
+var safeMult = fnull(function (total, n) {
+    console.log("   => total:", total, " n:", n);
+    return total * n
+}, 1, 1);
+
+console.info("safeMult:", _.reduce(nums, safeMult)); //=> 30
+
+
+function defaults(D) {
+    console.log("   > D:", D);
+
     return function (o, k) {
-        var val = fnull(_.identity, d[k]);
-        return o && val(o[k]);
+        var val = fnull(_.identity, D[k]); //todo: 이해가 안됨. args에 이미 108로 채워 넣은 함수가 됨.
+        console.log("  > o:", o, " k:", k, " val:", val(o[k]));
+        return o && val(o[k]); //todo: 이 부분 정확하게 이해가 안 {} && 108 왜 이렇게 하나?
     };
 }
 
 function doSomething(config) {
-    var lookup = defaults({critical: 108});
+    var lookup = defaults({critical: 108}); //함수
 
     return lookup(config, 'critical');
 }
 console.info("doSomething:", doSomething({critical: 9})); //=> 9
 console.info("doSomething:", doSomething({})); //=> 108
 
-function fnull(fun /*, defaults */) {
-    var defaults = _.rest(arguments);
+//4.3 객체 검증자
+//checker: 함수에 args(obj)를 호출해서 false이면 err message를 array에 담는다.
+function checker(/* validators */) {
+    var validators = _.toArray(arguments);
+    console.log("   > validators:", validators);
 
-    return function (/* args */) {
-        var args = _.map(arguments, function (e, i) {
-            return existy(e) ? e : defaults[i];
-        });
+    return function (obj) {
+        return _.reduce(validators, function (errs, check) {
+            console.log("   > errs:", errs, "check:", check);
 
-        return fun.apply(null, args);
+            if (check(obj)) //함수를 콜
+                return errs;
+            else
+                return _.chain(errs).push(check.message).value();
+        }, []);
     };
-};
+}
 
-var safeMult = fnull(function (total, n) {
-    return total * n
-}, 1, 1);
+var alwaysPasses = checker(always(true), always(true));
+console.info("alwaysPasses:", alwaysPasses({})); //=>  []
 
-console.info("safeMult:", _.reduce(nums, safeMult)); //=> 30
+var fails = always(false);
+fails.message = "a failure in life";
+var alwaysFails = checker(fails);
 
-//function checker(/* validators */) {
-//    var validators = _.toArray(arguments);
-//
-//    return function(obj) {
-//        return _.reduce(validators, function(errs, check) {
-//            if (check(obj))
-//                return errs;
-//            else
-//                return _.chain(errs).push(check.message).value();
-//        }, []);
-//    };
-//}
-//
-//function validator(message, fun) {
-//    var f = function(/* args */) {
-//        return fun.apply(fun, arguments);
-//    };
-//
-//    f['message'] = message;
-//    return f;
-//}
-//
-//function aMap(obj) {
-//    return _.isObject(obj);
-//}
-//
-//var checkCommand = checker(validator("must be a map", aMap));
-//
-//function hasKeys() {
-//    var KEYS = _.toArray(arguments);
-//
-//    var fun = function(obj) {
-//        return _.every(KEYS, function(k) {
-//            return _.has(obj, k);
-//        });
-//    };
-//
-//    fun.message = cat(["Must have values for keys:"], KEYS).join(" ");
-//    return fun;
-//}
-//
-//var checkCommand = checker(validator("must be a map", aMap), hasKeys('msg', 'type'));
+console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
+
+//validator: 메시지츨 추가하는 부분을 함수로 추상화 시킴
+function validator(message, fun) {
+    var f = function (/* args */) {
+        return fun.apply(fun, arguments);
+    };
+
+    f['message'] = message;
+    return f;
+}
+
+var gonnaFail = checker(validator("ZOMG!", always(false)));
+console.info("gonnaFail:", gonnaFail(100)); //=> ["ZOMG!"]
+
+
+//aMap: {} 객체 인지 판단해줌.
+function aMap(obj) {
+    return _.isObject(obj);
+}
+
+var checkCommand = checker(validator("must be a map", aMap));
+console.info("checkCommand:", checkCommand({}));
+console.info("checkCommand:", checkCommand(42));
+
+//hasKeys:
+function hasKeys() {
+    var KEYS = _.toArray(arguments); //['msg', 'type']
+    console.log(" > KEYS:", KEYS);
+
+    var fun = function (obj) {
+        return _.every(KEYS, function (k) {
+            return _.has(obj, k);
+        });
+    };
+
+    fun.message = cat(["Must have values for keys:"], KEYS).join(" ");
+    return fun;
+}
+
+var checkCommand = checker(validator("must be a map", aMap), hasKeys('msg', 'type'));
+console.info("checkCommand:", checkCommand({msg: "balh", type: "display"})); //=> []
+console.info("checkCommand:", checkCommand(1)); //=> ["must be a map", "Must have values for keys: msg type"]
+console.info("checkCommand:", checkCommand({})); //=> ["Must have values for keys: msg type"]
