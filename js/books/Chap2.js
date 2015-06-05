@@ -181,6 +181,14 @@ function cat() {
 console.log("cat: ", cat([1, 2, 3], [4, 5], [6, 7, 8]));//=> [1, 2, 3, 4, 5, 6, 7, 8]
 
 //아래 construct는 응용형 함수가 아니다. 인자로 받은 함수를 호출하지 않았음.
+
+/**
+ * 모든 array로 조합해서 return함
+ *
+ * @param head
+ * @param tail
+ * @returns {*}
+ */
 function construct(head, tail) {
     return cat([head], _.toArray(tail));
 }
