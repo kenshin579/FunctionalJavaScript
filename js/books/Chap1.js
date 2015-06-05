@@ -177,11 +177,20 @@ console.info("selectAges: ",  selectAges(peopleTable));
 console.info("selectHairColor: ",  selectHairColor(peopleTable));
 console.info("mergeResults: ",  mergeResults(selectNames(peopleTable), selectHairColor(peopleTable)));
 
-//뭔가 존재하는지 여부를 알려주는 함수
+/**
+ * 뭔가 존재하는지 여부를 알려주는 함수
+ * @param x
+ * @returns {boolean}
+ */
 function existy(x) {
     return x != null
 };
-//어떤 것이 참인지 여부를 결정하는 함수
+
+/**
+ * 어떤 것이 참인지 여부를 결정하는 함수
+ * @param x
+ * @returns {boolean}
+ */
 function truthy(x) {
     return (x !== false) && existy(x)
 };
