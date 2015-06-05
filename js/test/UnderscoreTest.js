@@ -109,9 +109,10 @@ console.info("_.groupBy: ", JSON.stringify(_.groupBy(['one', 'two', 'three'], 'l
 //=> {3: ["one", "two"], 5: ["three"]}
 
 ////_.countBy(list, iteratee, [context]): iteratee함수에 의해서 구릅별로 나뉘고 나서의 count를 return함
-console.info("_.countBy: ", JSON.stringify(_.countBy([1, 2, 3, 4, 5], function (num) { //=> {odd: 3, even: 2}
+//- 같은 결과끼지 묶어서 count를 한다고 보면 됨
+console.info("_.countBy: ", JSON.stringify(_.countBy([1, 2, 3, 4, 5], function (num) {
     return num % 2 == 0 ? 'even' : 'odd';
-})));
+}))); //=> {odd: 3, even: 2}
 
 ////_.pluck(list, propertyName) : propertyName으로 value을 뽑는다.
 var stooges = [{name: 'moe', age: 40}, {name: 'larry', age: 50}, {name: 'curly', age: 60}];
