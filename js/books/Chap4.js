@@ -118,6 +118,15 @@ console.info("always:", repeatedly(3, always("Hello"))); //=> ["Hello", "Hello",
 
 //반환되는 함수가 클로저이다
 //함수형 스타일에서는 메서드를 호출할 대상을 인자로 받는 형식을 선호한다
+
+/**
+ * 첫번째 인자로 받은 객체에 메서드를 호출하는 함수다
+ * - 대상객체가 호출하려는 메서드를 제공하지 않으면 undefined를 반환된다
+ *
+ * @param NAME
+ * @param METHOD
+ * @returns {Function}
+ */
 function invoker(NAME, METHOD) {
     return function (target /* args ... */) { //args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]}
         if (!existy(target)) fail("Must provide a target");
@@ -257,7 +266,11 @@ console.info("doSomething:", doSomething({critical: 9})); //=> 9
 console.info("doSomething:", doSomething({})); //=> 108
 
 //4.3 객체 검증자
-//checker: 함수에 args(obj)를 호출해서 false이면 err message를 array에 담는다.
+/**
+ * 함수에 args(obj)를 호출해서 false이면 err message를 array에 담는다.
+ *
+ * @returns {Function}
+ */
 function checker(/* validators */) {
     var validators = _.toArray(arguments);
     console.log("   > validators:", validators);
@@ -283,7 +296,13 @@ var alwaysFails = checker(fails);
 
 console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
 
-//validator: 메시지츨 추가하는 부분을 함수로 추상화 시킴
+/**
+ * 메시지츨 추가하는 부분을 함수로 추상화 시킴
+ *
+ * @param message
+ * @param fun
+ * @returns {Function}
+ */
 function validator(message, fun) {
     var f = function (/* args */) {
         return fun.apply(fun, arguments);
