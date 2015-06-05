@@ -164,6 +164,7 @@ console.log("3b", JSON.stringify(Array.prototype.concat.apply([], [[["a"]], ["b"
 console.log("_.flatten", _.flatten([[["a"]], ["b"]]));
 
 //2.2.3: 응용형 함수란: 다른 함수를 인자로 받는 함수를 정의하고 그 다음에 인자로 받은 함수를 호출하는 형태
+//cat: 여러 함수를 한 array로 합쳐주는 역할을 함
 function cat() {
     var head = _.first(arguments);
     //console.log("head: ", head);
