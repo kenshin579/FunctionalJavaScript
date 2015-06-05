@@ -22,11 +22,10 @@ console.info("reduce: ", [0, 1, 2, 3, 4].reduce(function (previousValue, current
 
 console.log({'a': 'AAA'});
 console.info("_.reduce: ", _.reduce({'a': 'AAA'}, function (prevObj, value, key) {
-    console.log("prevObj: ", prevObj, "value:", value, "key:", key);
+    console.log("    > prevObj: ", prevObj, "value:", value, "key:", key);
     //return previousValue + currentValue;
     return prevObj;
 }, {b: 2}));
-
 
 ////_.reduceRight(list, iteratee, memo, [context]) :
 var list = [[0, 1], [2, 3], [4, 5]];
@@ -85,7 +84,9 @@ console.log("_.reject: ", odds);
 
 ////_.every(list, [predicate], [context]): list의 모든 값이 predicate함수의 truth인 경우에 true를 반환함  , alias: _.all
 console.info("_.every: ", _.every([1, false, 3, 4]), _.isNumber); //todo: =>이건 제대로 동작을 안함
-console.info("_.every: ", _.every([1, 2, 3, 4], _.identity));
+console.info("_.every: ", _.every([1, 2, 3, 4], _.identity)); //=> true
+console.info("_.every: ", _.every([true, 1, null, 'yes'], _.identity)); //=> false
+
 ////_.some(list, [predicate], [context]): predicate함수의 true가 하나라도 있으면 true를 반환함 , alias: any
 console.log("_.some: ", _.some([null, 0, 'yes', false]));
 console.log("_.some: ", _.some([1, 2, 'c', 4], _.isString));
@@ -169,13 +170,13 @@ var buttonView = {
 };
 _.bindAll(buttonView, 'onClick', 'onHover');
 // When the button is clicked, this.label will have the correct value.
-jQuery('#underscore_button').bind('click', buttonView.onClick);
+//jQuery('#underscore_button').bind('click', buttonView.onClick);
 
 console.log("");
 console.warn("Object________________________________________________________");
 ////_.tap(object, interceptor) : Invokes interceptor with the object, and then returns object.
 //chain하는 중간에 무엇인가 실행할 때 사용함
-_.chain([1, 2, 3, 200]) //=> [4, 40000]
+console.info("_.chain:", _.chain([1, 2, 3, 200]) //=> [4, 40000]
     .filter(function (num) {
         return num % 2 == 0;
     })
@@ -183,7 +184,8 @@ _.chain([1, 2, 3, 200]) //=> [4, 40000]
     .map(function (num) {
         return num * num
     })
-    .value();
+        .value()
+);
 
 ////_.keys(object) : keys만 추출함
 console.info("_.keys: ", _.keys({one: 1, two: 2, three: 3})); //=> ["one", "two", "three"]
@@ -204,6 +206,14 @@ console.info("_.defaults: ", _.defaults(iceCream, {flavor: "vanilla", sprinkles:
 //    reason: "For its public service in publishing in full so many official reports,
 //    documents and speeches by European statesmen relating to the progress and
 //    conduct of the war."}
+
+////_.isObject(value) :
+console.info("_.isObject:", _.isObject({})); //=> true
+console.info("_.isObject:", _.isObject(1)); //=> false
+
+////_.has(object, key) : key가 객체에 있는가?
+console.info("_.has:", _.has({a: 1, b: 2, c: 3}, "b")); //=> true
+
 
 console.log("");
 console.warn("Utility________________________________________________________");
@@ -242,6 +252,11 @@ var youngest = _.chain(stooges) //=> "moe is 21"
 console.info("_.chain: ", JSON.stringify(youngest));
 ////_(obj).value(): wrapped object된 객체에서 value을 추출함
 console.info("_.value: ", _([1, 2, 3]).value()); //=> [1, 2, 3]
+
+console.info("_.chain:", _.chain([1]) //=> [4, 40000]
+        .push("test")
+        .value()
+);
 
 console.log("");
 console.warn("기타________________________________________________________");
