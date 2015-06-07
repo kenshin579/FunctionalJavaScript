@@ -170,10 +170,10 @@ console.log("_.flatten", _.flatten([[["a"]], ["b"]]));
  */
 function cat() {
     var head = _.first(arguments);
-    //console.log("head: ", head);
+    //console.log("head: ", head); //[1, 2, 3]
     if (existy(head)) {
         var rest = _.rest(arguments);
-        //console.log("rest: ", rest);
+        //console.log("rest: ", JSON.stringify(rest)); //[[4,5],[6,7,8]]
         return head.concat.apply(head, rest); //concat.apply를 한것과 그냥 concat의 차이점은?
     }
     else {
@@ -186,7 +186,7 @@ console.log("cat: ", cat([1, 2, 3], [4, 5], [6, 7, 8]));//=> [1, 2, 3, 4, 5, 6, 
 //아래 construct는 응용형 함수가 아니다. 인자로 받은 함수를 호출하지 않았음.
 
 /**
- * 모든 array로 조합해서 return함
+ * 모든 array로 조합해서 하나의 array로 return함
  *
  * @param head
  * @param tail
@@ -200,31 +200,47 @@ console.log("construct: ", construct(42, [1, 2, 3])); //=> [42, 1, 2, 3]
 
 //응용형 함수
 /**
- *
+ * fun이라는 함수를 인자로 받아 _.map처럼 인자로 제공된 켈렉션의 모든 요소에 함수(, 합치는)를 실행한다.
  *
  * @param fun
  * @param coll
  * @returns {*}
  */
 function mapcat(fun, coll) {
+    console.log("   mapcat > coll:", coll);
     return cat.apply(null, _.map(coll, fun));
 }
-console.log("mapcat: ", mapcat(function (each) { //=> [] [1, 2, 3] todo: 잘 모르겠음.
-    return each + 1;
-}), [1, 2, 3]);
 
+console.log("mapcat: ", mapcat(function (e) {
+    return construct(e, [","]);
+}, [1, 2, 3])); //=>  [1, ",", 2, ",", 3, ","]
+
+/**
+ * 마지막(last)만 빼고 array를 반환한다.
+ *
+ * @param coll
+ * @returns {Array.<T>|string|Blob|ArrayBuffer|*}
+ */
 function butLast(coll) {
     return _.toArray(coll).slice(0, -1);
 }
 console.log("butLast: ", butLast([2, 3, 4, 5])); //=> [2, 3, 4]
 
-function interpose(inter, coll) { //todo: 잘 이해가 안됨
+/**
+ * 켈렉션의 모든 요소 중간에 ','를 삽입하고 마지막 요소를 제외한 array를 반환한다.
+ *
+ * @param inter
+ * @param coll
+ * @returns {Array.<T>|string|Blob|ArrayBuffer|*}
+ */
+function interpose(inter, coll) {
     return butLast(mapcat(function (e) {
             return construct(e, [inter]);
         },
         coll));
 }
-console.log("interpose: ", interpose(",", [1, 2, 3])); //=> [1, ",", 2, ",", 3]
+
+console.log("interpose: ", interpose(",", [1, 2, 3])); //=>  [1, ",", 2, ",", 3]
 
 
 var zombie = {name: "Bub", film: "Day of the Dead"};

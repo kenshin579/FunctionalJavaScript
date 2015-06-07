@@ -2,6 +2,12 @@ console.log("");
 console.warn("Chap1_________________________________________________________________________");
 
 //apply 메서드는 인자를 담은 배열 하나를 인자로 받음
+/**
+ * 배열를 인자로 받아서 실행할 수 있는 함수를 반환한다.
+ *
+ * @param fun
+ * @returns {Function}
+ */
 function splat(fun) {
     return function (array) {
         return fun.apply(null, array);
@@ -10,8 +16,7 @@ function splat(fun) {
 var addArrayElements = splat(function (x, y) {
     return x + y;
 });
-console.info("splat: ",  addArrayElements([1, 2]));
-//=> 3
+console.info("splat: ", addArrayElements([1, 2])); //=> 3
 
 //call은 arguments list를 인자로 받음
 function unsplat(fun) {

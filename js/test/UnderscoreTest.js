@@ -180,18 +180,34 @@ _.bindAll(buttonView, 'onClick', 'onHover');
 // When the button is clicked, this.label will have the correct value.
 //jQuery('#underscore_button').bind('click', buttonView.onClick);
 
+////_.compose(*functions) : f(g(h()) 이렇게 각 함수는 함수의 return값을 consumes하면서 결과를 composite한다.
+//- 가장 오른쪽의 함수의 결과가 왼쪽 함수로 하나씩 전달된다.
+var greet = function (name) { //3.hi: MOE <==== !
+    return "hi: " + name;
+};
+var exclaim = function (statement) { //2.MOE <==== !
+    return statement.toUpperCase() + "!";
+};
+var last = function (statement) { // 1.moe <====
+    return statement + " <===";
+};
+var welcome = _.compose(greet, exclaim);
+console.info("welcome:", welcome('moe')); //=> 'hi: MOE!'
+welcome = _.compose(greet, exclaim, last);
+console.info("welcome:", welcome('moe')); //=> welcome: hi: MOE <===!
+
 console.log("");
 console.warn("Object________________________________________________________");
 ////_.tap(object, interceptor) : Invokes interceptor with the object, and then returns object.
 //chain하는 중간에 무엇인가 실행할 때 사용함
 console.info("_.chain:", _.chain([1, 2, 3, 200]) //=> [4, 40000]
-    .filter(function (num) {
-        return num % 2 == 0;
-    })
-    //.tap(alert) //=> // [2, 200] (alerted)
-    .map(function (num) {
-        return num * num
-    })
+        .filter(function (num) {
+            return num % 2 == 0;
+        })
+        //.tap(alert) //=> // [2, 200] (alerted)
+        .map(function (num) {
+            return num * num
+        })
         .value()
 );
 

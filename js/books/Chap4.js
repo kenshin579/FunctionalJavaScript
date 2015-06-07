@@ -298,7 +298,7 @@ console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
 
 /**
  * 검증 찬반형을 인자로 받아서 에러가 발생한 항목 정보를 포함하는 배열을 반환한다
- * - 메시지를 추가하는 부분을 함수로 추상화 시킴
+ * - 오류 메시지를 추가하는 부분을 함수로 추상화 시킴
  *
  * @param message
  * @param fun
@@ -306,7 +306,8 @@ console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
  */
 function validator(message, fun) {
     var f = function (/* args */) {
-        return fun.apply(fun, arguments);
+        return fun.apply(fun, arguments); //todo: 첫번째 인자에 fun을 왜 넣었나?
+        //return fun.apply(null, arguments);
     };
 
     f['message'] = message;
@@ -326,10 +327,14 @@ var checkCommand = checker(validator("must be a map", aMap));
 console.info("checkCommand:", checkCommand({}));
 console.info("checkCommand:", checkCommand(42));
 
-//hasKeys:
+/**
+ * key가 객체 있는지 확인하는 함수를 반환하고 없으면 오류 메시지를 추가한다.
+ *
+ * @returns {Function}
+ */
 function hasKeys() {
     var KEYS = _.toArray(arguments); //['msg', 'type']
-    console.log(" > KEYS:", KEYS);
+    console.log("   hasKeys > KEYS:", KEYS);
 
     var fun = function (obj) {
         return _.every(KEYS, function (k) {
