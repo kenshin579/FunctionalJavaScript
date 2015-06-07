@@ -273,11 +273,11 @@ console.info("doSomething:", doSomething({})); //=> 108
  */
 function checker(/* validators */) {
     var validators = _.toArray(arguments);
-    console.log("   > validators:", validators);
+    console.log("   checker > validators:", validators);
 
     return function (obj) {
         return _.reduce(validators, function (errs, check) {
-            console.log("   > errs:", errs, "check:", check);
+            console.log("   checker > errs:", errs, "check:", check);
 
             if (check(obj)) //함수를 콜
                 return errs;
@@ -297,7 +297,8 @@ var alwaysFails = checker(fails);
 console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
 
 /**
- * 메시지츨 추가하는 부분을 함수로 추상화 시킴
+ * 검증 찬반형을 인자로 받아서 에러가 발생한 항목 정보를 포함하는 배열을 반환한다
+ * - 메시지를 추가하는 부분을 함수로 추상화 시킴
  *
  * @param message
  * @param fun
