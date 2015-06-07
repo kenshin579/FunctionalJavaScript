@@ -148,6 +148,13 @@ console.info("_.range: ", _.range(0));          //=> []
 console.info("_.object: ", _.object(['moe', 'larry', 'curly'], [30, 40, 50])); //=> {moe: 30, larry: 40, curly: 50}
 console.info("_.object: ", _.object([['moe', 30], ['larry', 40], ['curly', 50]])); //=> {moe: 30, larry: 40, curly: 50}
 
+////_.uniq(array, [isSorted], [iteratee]): 중복을 제거함
+console.info("_.uniq:", _.uniq([1, 2, 1, 4, 1, 3])); //=> [1, 2, 4, 3]
+console.info("_.uniq:", _.uniq([1, 2, 1, 4, 1, 3], false, function (each, index) {
+    console.log("  > each:", each, "index:", index);
+})); //=> [1, 2, 4, 3]
+
+
 console.log("");
 console.warn("Functions________________________________________________________");
 ////_.bind(function, object, *arguments) : 함수를 object에 bind시킨다.
@@ -214,7 +221,6 @@ console.info("_.isObject:", _.isObject(1)); //=> false
 
 ////_.has(object, key) : key가 객체에 있는가?
 console.info("_.has:", _.has({a: 1, b: 2, c: 3}, "b")); //=> true
-
 
 console.log("");
 console.warn("Utility________________________________________________________");
