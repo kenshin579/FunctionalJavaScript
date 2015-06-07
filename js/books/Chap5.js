@@ -171,6 +171,7 @@ console.info("performTrialUserCommand:",
 //5.1.1 변이는 저수준 동작이다.
 //5.2 커링: 각각의 논리적 인자에 대응하는 새로운 함수를 반환하는 함수를 커리(혹은 커리된) 함수라고 함
 //- 커리 함수는 각각의 논리 파라미터를 이용해서 점차 세부적으로 설정된 함수를 반환한다.
+//todo: 왜 이게 필요한지 그리고 어느곳에서 쓰면 유용한지 잘 모르겠음
 function rightAwayInvoker() {
     var args = _.toArray(arguments);
     console.log("  > args:", args);
@@ -224,6 +225,11 @@ console.info("parseInt:", parseInt('11', 2)); //=> 3
 
 //todo: 아래 잘 이해 안됨. radix: 0, 1, 2, 3순으로 제공된다. 왜? 모름
 console.info("map:", ['11', '11', '11', '11'].map(parseInt)); //=> [11, NaN, 3, 4]
+console.info("_.map:", _.map(['11', '11', '11', '11'], parseInt)); //=> [11, NaN, 3, 4]
+console.info("_.map:", _.map(['11', '11', '11', '11'], function (each, index) {
+    console.log("  > each:", each, "index:", index, "parseInt:", parseInt(each, index)); //<- 왜 이렇게 넘겨주게 되나?
+    return parseInt(each, index);
+})); //=> [11, NaN, 3, 4]
 console.info("map:", ['11', '11', '11', '11'].map(curry(parseInt))); //=> [11, 11, 11, 11]
 console.info("map:", ['11', '12', '13', '14'].map(curry(parseInt))); //=> [11, 12, 13, 14]
 
@@ -231,7 +237,7 @@ console.info("map:", ['11', '12', '13', '14'].map(curry(parseInt))); //=> [11, 1
 function curry2(fun) {
     return function (secondArg) {
         return function (firstArg) {
-            console.log("  > 1st:", firstArg, "2nd:", secondArg);
+            console.log("   curry2 > 1st:", firstArg, "2nd:", secondArg);
             return fun(firstArg, secondArg);
         };
     };
@@ -244,9 +250,9 @@ function div(n, d) {
 var div10 = curry2(div)(10);
 
 console.info("div10:", div10(50)); //=> 5
-
+//fun  //secondArg
 var parseBinaryString = curry2(parseInt)(2);
-
+//firstArg
 console.info("parseBinaryString:", parseBinaryString("111")); //=> 7
 console.info("parseBinaryString:", parseBinaryString("10")); //=> 2
 
@@ -275,20 +281,22 @@ console.info("songCount:", songCount(plays));
 //    "Burial - Archangel": 3,
 //    "Emeralds - Snores": 1}
 
+//세개의 파라미터를 커링해서 HTML 16진 색상 생성기 구현하기
 function curry3(fun) {
     return function (last) {
         return function (middle) {
             return function (first) {
+                console.log("   first:", first, " middle:", middle, "last:", last);
                 return fun(first, middle, last);
             };
         };
     };
 };
-
+//func  //middle  //last
 var songsPlayed = curry3(_.uniq)(false)(songToString);
-
-songsPlayed(plays);
-
+//first
+console.info("songsPlayed:", JSON.stringify(songsPlayed(plays)));
+console.info("songsPlayed:", JSON.stringify(curry3(_.uniq)(false)(songToString)(plays)));
 //=> [{artist: "Burial", track: "Archangel"},
 //    {artist: "Ben Frost", track: "Stomp"},
 //    {artist: "Emeralds", track: "Snores"}]
@@ -302,93 +310,148 @@ function rgbToHexString(r, g, b) {
     return ["#", toHex(r), toHex(g), toHex(b)].join('');
 }
 
-rgbToHexString(255, 255, 255);
+console.info("rgbToHexString:", rgbToHexString(255, 255, 255));
 //=> "#ffffff"
 
 var blueGreenish = curry3(rgbToHexString)(255)(200);
+console.info("blueGreenish:", blueGreenish(0)); //=> "#00c8ff"
 
-blueGreenish(0);
-//=> "#00c8ff"
-//
-//var greaterThan = curry2(function (lhs, rhs) { return lhs > rhs });
-//var lessThan    = curry2(function (lhs, rhs) { return lhs < rhs });
-//
-//var withinRange = checker(
-//    validator("arg must be greater than 10", greaterThan(10)),
-//    validator("arg must be less than 20", lessThan(20)));
-//
-//function divPart(n) {
-//    return function(d) {
-//        return n / d;
-//    };
-//}
-//
-//var over10Part = divPart(10);
-//over10Part(2);
-////=> 5
-//
-//function partial1(fun, arg1) {
-//    return function(/* args */) {
-//        var args = construct(arg1, arguments);
-//        return fun.apply(fun, args);
-//    };
-//}
-//
-//function partial2(fun, arg1, arg2) {
-//    return function(/* args */) {
-//        var args = cat([arg1, arg2], arguments);
-//        return fun.apply(fun, args);
-//    };
-//}
-//
-//var div10By2 = partial2(div, 10, 2)
-//
-//div10By2()
-////=> 5
-//
-//function partial(fun /*, pargs */) {
-//    var pargs = _.rest(arguments);
-//
-//    return function(/* arguments */) {
-//        var args = cat(pargs, _.toArray(arguments));
-//        return fun.apply(fun, args);
-//    };
-//}
-//
-//var zero = validator("cannot be zero", function(n) { return 0 === n
-//});
-//var number = validator("arg must be a number", _.isNumber);
-//
-//function sqr(n) {
-//    if (!number(n)) throw new Error(number.message);
-//    if (zero(n))    throw new Error(zero.message);
-//
-//    return n * n;
-//}
-//
-//function condition1(/* validators */) {
-//    var validators = _.toArray(arguments);
-//
-//    return function(fun, arg) {
-//        var errors = mapcat(function(isValid) {
-//            return isValid(arg) ? [] : [isValid.message];
-//        }, validators);
-//
-//        if (!_.isEmpty(errors))
-//            throw new Error(errors.join(", "));
-//
-//        return fun(arg);
-//    };
-//}
-//
-//var sqrPre = condition1(
-//    validator("arg must not be zero", complement(zero)),
-//    validator("arg must be a number", _.isNumber));
-//
-//function uncheckedSqr(n) { return n * n };
-//
-//uncheckedSqr('');
-////=> 0
+var greaterThan = curry2(function (lhs, rhs) {
+    console.log("   greaterThan > lhs: ", lhs, "rhs:", rhs); //lhs:15 > rhs:10
+    return lhs > rhs
+});
+var lessThan = curry2(function (lhs, rhs) {
+    console.log("   lessThan > lhs: ", lhs, "rhs:", rhs); //lhs:15 > rhs:20
+    return lhs < rhs
+});
+
+//어떤 수보다 큰지, 어떤 수보다 작은지를 계산하는 임의의 버전을 직접 사용하는 것보다 커리된 함수를 이용하는 것이 휠씬 가독성이 좋다.
+var withinRange = checker(
+    validator("arg must be greater than 10", greaterThan(10)),
+    validator("arg must be less than 20", lessThan(20))
+);
+console.info("withinRange:", withinRange(15));  //=> []
+console.info("withinRange:", withinRange(1));   //=> ["arg must be greater than 10"]
+console.info("withinRange:", withinRange(100)); //=> ["arg must be less than 20"]
+
+//5.3 부분 적용
+//부분 함수는 '부분적으로' 실행을 마친 다음에 나머지 인자와 함께 즉시 실행한 상태가 되는 함수
+//- 실행되기까지 한개의 인자만 남겨 둔 상태의 커리 함수는 사실상 한개의 인자만 남겨 둔 부분 적용함수와 같다.
+function divPart(n) { //leftCurryDiv 커리함수와 같음.
+    return function (d) {
+        return n / d;
+    };
+}
+
+var over10Part = divPart(10);
+console.info("over10Part:", over10Part(2)); //=> 5
+
+//5.3.1 한 두개의 알려진 인자를 부분 적용
+function partial1(fun, arg1) {
+    return function (/* args */) {
+        var args = construct(arg1, arguments); //args1과 나머지 arguments를 합친다.
+        return fun.apply(fun, args);
+    };
+}
+var div10By1 = partial1(div, 10);
+console.info("div10By1:", div10By1(5)); //=> 2
+console.info("partial1(div, 10)(5):", partial1(div, 10)(5)); //=> 2
+
+function partial1Bind(fun, arg1) {
+    return function (/* args */) {
+        var args = construct(arg1, arguments); //args1과 나머지 arguments를 합친다.
+        return fun.bind(undefined, args); //todo: 제대로 동작을 하지 않는 듯하다.
+    };
+}
+
+var div10By1Bind = partial1Bind(div, 10);
+console.info("div10By1Bind:", div10By1Bind(5)); //=> 2
+console.info("partial1(div, 10)(5):", partial1Bind(div, 10)(5)); //=> 2
+
+function partial2(fun, arg1, arg2) {
+    return function (/* args */) {
+        var args = cat([arg1, arg2], arguments);
+        return fun.apply(fun, args);
+    };
+}
+var div10By2 = partial2(div, 10, 2);
+console.info("div10By2:", div10By2()); //=> 5
+
+//5.3.2 임의의 수의 인자를 부분 적용
+function partial(fun /* pargs */) {
+    var pargs = _.rest(arguments); //=> [10]
+    console.log("   partial > pargs:", pargs);
+
+    return function (/* arguments */) {
+        var args = cat(pargs, _.toArray(arguments)); //[10, 2]
+        console.log("   partial > args:", args);
+        return fun.apply(fun, args);
+    };
+}
+var over10Partial = partial(div, 10);
+console.info("over10Partial:", over10Partial(2)); //=> 5
+
+//단점: partial은 임의의 수의 인자를 받을 수 있지만, 때로는 혼란스러울 수 있다.
+var div10By2By4By5000Partial = partial(div, 10, 2, 4, 5000);
+console.info("div10By2By4By5000Partial:", div10By2By4By5000Partial()); //=> 5
+
+//5.3.3. 부분 적용 사례: 선행조건
+console.info("validator:", validator("arg must be a map", aMap)(42)); //=> false
+var zero = validator("cannot be zero", function (n) {
+    return 0 === n
+});
+var number = validator("arg must be a number", _.isNumber);
+console.info("zero:", zero(2)); //=> false
+console.info("number:", number(3)); //=> true
+console.info("number:", checker(number)(3)); //=> []
+console.info("number:", checker(number)('a')); //=> ["arg must be a number"]
+
+//단점: 기본적인 데이터 검증은 수행할 수 있지만, 위 코드로 검출할 수 없는 종류의 에러도 있다.
+//- 바로 계산 보장과 관련된 종류의 에러가 그 중 하나다.
+function sqr(n) {
+    if (!number(n)) throw new Error(number.message);
+    if (zero(n))    throw new Error(zero.message);
+
+    return n * n;
+}
+
+console.info("sqr:", sqr(10)); //=> 100
+//console.info("sqr:", sqr(0));  //=> Error: cannot be zero
+//console.info("sqr:", sqr('')); //=> Error: arg must be a number
+
+//두 종류로 계산 보장을 구분할 수 있다.
+//1.선행조건(preconditions): 호출하는 함수에서 보장하는 조건
+//2.후행조건(postconditions): 선행조건이 지켜졌다는 가정 하에 함수를 호출결과를 보장하는 조건
+
+function condition1(/* validators */) {
+    var validators = _.toArray(arguments);
+
+    return function (fun, arg) {
+        var errors = mapcat(function (isValid) {
+            return isValid(arg) ? [] : [isValid.message];
+        }, validators);
+
+        if (!_.isEmpty(errors))
+            throw new Error(errors.join(", "));
+
+        return fun(arg);
+    };
+}
+
+var sqrPre = condition1(
+    validator("arg must not be zero", complement(zero)),
+    validator("arg must be a number", _.isNumber)
+);
+
+console.info("sqrPre:", sqrPre(_.identity, 10)); //=> 10
+//console.info("sqrPre:", sqrPre(_.identity, '')); //=> Error: arg must be a number
+//console.info("sqrPre:", sqrPre(_.identity, 0)); //=> Error: arg must be a zero
+
+function uncheckedSqr(n) {
+    return n * n
+};
+
+uncheckedSqr(''); //=> 0
 //
 //var checkedSqr = partial1(sqrPre, uncheckedSqr);
 //
