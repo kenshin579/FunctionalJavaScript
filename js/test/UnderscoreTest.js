@@ -238,6 +238,9 @@ console.info("_.isObject:", _.isObject(1)); //=> false
 ////_.has(object, key) : key가 객체에 있는가?
 console.info("_.has:", _.has({a: 1, b: 2, c: 3}, "b")); //=> true
 
+////_.extend(destination, *sources) : sources에 있는 properties를 dest 객체 다 복사해서 dest를 반한환다.
+console.info("_.extend:", _.extend({name: 'moe'}, {age: 50})); //=> {name: 'moe', age: 50}
+
 console.log("");
 console.warn("Utility________________________________________________________");
 ////_.result(object, property, [defaultValue]): property가 함수인 경우에는 실행하고 존재하는 경우에는 그 값을 return

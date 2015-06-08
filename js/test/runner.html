@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+    <title>OT Engine Unit Test Runner</title>
+
+    <link rel="stylesheet" type="text/css" href="../libs/jasmine-standalone-1.3.1/lib/jasmine-1.3.1/jasmine.css">
+    <script type="text/javascript" src="../libs/jasmine-standalone-1.3.1/lib/jasmine-1.3.1/jasmine.js"></script>
+    <script type="text/javascript" src="../libs/jasmine-standalone-1.3.1/lib/jasmine-1.3.1/jasmine-html.js"></script>
+
+    <script type="text/javascript" src="../libs/requirejs/require.js"></script>
+
+    <script type="text/javascript">
+        require.config({
+            "paths": {
+                "domReady": "../libs/requirejs/domReady",
+                "books": "../books",
+                "underscore": "../libs/underscore/underscore",
+                "jquery": "../libs/jquery/1.9.1/jquery-1.9.1.min"
+            }
+        });
+
+    </script>
+    <script type="text/javascript">
+        require([
+            "domReady!",
+            "spec/Chap7Test"
+        ], function (document) {
+            jasmine.getEnv().addReporter(
+                    new jasmine.HtmlReporter()
+            );
+
+            jasmine.getEnv().execute();
+        });
+
+    </script>
+
+</head>
+<body>
+<!-- Left intentionally blank. -->
+</body>
+</html>

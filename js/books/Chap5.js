@@ -6,7 +6,8 @@ console.warn("Chap5_____________________________________________________________
 /**
  * 객체를 포함하는 배열의 요소를 반복하면서 각 객체에 메서드를 호출해서 첫번째로
  * 반환되는 실제 값을 찾는 함수를 반환함
- * -모든 함수를 실행한다.
+ * - 모든 함수를 실행한다.
+ *
  * @returns {Function}
  */
 function dispatch(/* funs */) {
@@ -358,7 +359,7 @@ console.info("over10Part:", over10Part(2)); //=> 5
  */
 function partial1(fun, arg1) {
     return function (/* args */) {
-        console.log("   partial1 > arg1:", arg1, "arguments:", JSON.stringify(arguments));
+        //console.log("   partial1 > arg1:", arg1, "arguments:", JSON.stringify(arguments));
         var args = construct(arg1, arguments); //args1과 나머지 arguments를 합친다.
         return fun.apply(fun, args);
     };

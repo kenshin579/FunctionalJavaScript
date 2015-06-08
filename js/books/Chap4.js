@@ -55,6 +55,13 @@ function repeat(times, VALUE) {
 console.info("repeat:", repeat(4, "Major")); //=> ["Major", "Major", "Major", "Major"]
 
 //정적 값(VALUE)을 사용하는 대신 값대신 함수를 사용하라
+/**
+ * 함수를 times만큼 실행한 각 결과는 array에 담아서 반환한다.
+ *
+ * @param times
+ * @param fun
+ * @returns {Array|*}
+ */
 function repeatedly(times, fun) {
     return _.map(_.range(times), fun);
 }
@@ -128,6 +135,8 @@ console.info("always:", repeatedly(3, always("Hello"))); //=> ["Hello", "Hello",
  * @returns {Function}
  */
 function invoker(NAME, METHOD) {
+    console.log("   invoker");
+
     return function (target /* args ... */) { //args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]}
         if (!existy(target)) fail("Must provide a target");
 

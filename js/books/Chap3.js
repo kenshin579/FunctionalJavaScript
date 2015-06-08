@@ -274,9 +274,9 @@ console.info("isOdd:", isOdd(2));   //=> false
 console.info("isOdd:", isOdd(413)); //=> true
 
 //isEven의 새 레퍼런스를 만들었으므로 콜로저 isOdd에는 아무영향이 없다.
-function isEven(n) {
-    return false;
-}
+//function isEven(n) {
+//    return false;
+//}
 
 console.info("isEven:", isEven(10)); //=> false
 console.info("isOdd:", isOdd(13));   //=> true
