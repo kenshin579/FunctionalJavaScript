@@ -32,58 +32,73 @@ console.info("createPerson:", createPerson()
     .setAge(108)
     .toString()); //=> "Mike Fogus 108"
 
-var TITLE_KEY = 'titel';
+var TITLE_KEY = 'title';
 
-// ... a whole bunch of code later
-
+/*
+ _.value 함수를 이용해서 명시적으로 감싼값을 요청하지 않았음에도 체인의 모든 호출이 실행됐다. 게이른 방식이었다면,
+ _.value를 호출할때까지 체인의 어떤 호출도 실행되지 않았을 것이다.
+ */
 console.info("_.chain:",
     _.chain(library)
         .pluck(TITLE_KEY)
         .sort()
-        .value());
+        .value()
+); //=> ["Joy of Clojure", "SICP", "SICP"]
 
-//=> [undefined, undefined, undefined]
-//
-//function LazyChain(obj) {
-//    this._calls  = [];
-//    this._target = obj;
-//}
-//
-//LazyChain.prototype.invoke = function(methodName /*, args */) {
-//    var args = _.rest(arguments);
-//
-//    this._calls.push(function(target) {
-//        var meth = target[methodName];
-//
-//        return meth.apply(target, args);
-//    });
-//
-//    return this;
-//};
-//
-//LazyChain.prototype.force = function() {
-//    return _.reduce(this._calls, function(target, thunk) {
-//        return thunk(target);
-//    }, this._target);
-//};
-//
-//LazyChain.prototype.tap = function(fun) {
-//    this._calls.push(function(target) {
-//        fun(target);
-//        return target;
-//    });
-//
-//    return this;
-//}
-//
-//function LazyChainChainChain(obj) {
-//    var isLC = (obj instanceof LazyChain);
-//
-//    this._calls  = isLC ? cat(obj._calls, []) : [];
-//    this._target = isLC ? obj._target : obj;
-//}
-//
-//LazyChainChainChain.prototype = LazyChain.prototype;
+console.info("_.tap:", _.tap([1, 2, 3], note)); //=> [1,2,3]
+console.info("_.tap:", _.tap([1, 2, 3], function () {
+})); //=> [1,2,3]
+
+//8.1.1 게이른 체인
+function LazyChain(obj) {
+    this._calls = [];
+    this._target = obj;
+}
+
+/**
+ *
+ * @param methodName
+ * @returns {LazyChain}
+ */
+LazyChain.prototype.invoke = function (methodName /*, args */) {
+    var args = _.rest(arguments);
+
+    this._calls.push(function (target) {
+        var meth = target[methodName];
+
+        return meth.apply(target, args);
+    });
+
+    return this;
+};
+
+console.info("LazyChain.invoke:", new LazyChain([2, 1, 3]).invoke('sort')._calls); //=> [function(target)...]
+
+LazyChain.prototype.force = function () {
+    return _.reduce(this._calls, function (target, thunk) {
+        return thunk(target);
+    }, this._target);
+};
+
+LazyChain.prototype.tap = function (fun) {
+    this._calls.push(function (target) {
+        fun(target);
+        return target;
+    });
+
+    return this;
+}
+
+function LazyChainChainChain(obj) {
+    var isLC = (obj instanceof LazyChain);
+
+    this._calls = isLC ? cat(obj._calls, []) : [];
+    this._target = isLC ? obj._target : obj;
+}
+
+LazyChainChainChain.prototype = LazyChain.prototype;
+
+
 //
 //var longing = $.Deferred();
 //

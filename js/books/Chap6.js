@@ -464,7 +464,7 @@ function trampoline(fun /*, args */) {
 
     return result;
 }
-console.info("trampoline:", trampoline(oddOline, 3));
+console.info("trampoline:", trampoline(oddOline, 3)); //=> true
 //console.info("trampoline:", trampoline(evenOline, 200000));
 //console.info("trampoline:", trampoline(oddOline, 3000000));
 //console.info("trampoline:", trampoline(evenOline, 200000000));

@@ -263,13 +263,15 @@ console.info("_.identity: ", stooge === _.identity(stooge));//=> true
 
 console.log("");
 console.warn("Chaining________________________________________________________");
-////_.chain(obj): value()이 호출될때까지 계속 wrapped object를 return함
+/*
+ _.chain(obj): value()이 호출될때까지 계속 wrapped object를 return함
+ */
 var stooges = [{name: 'curly', age: 25}, {name: 'moe', age: 21}, {name: 'larry', age: 23}];
 var youngest = _.chain(stooges) //=> "moe is 21"
     .sortBy(function (stooge) {
         return stooge.age;
     })
-    .map(function (stooge) { //todo: 인자 없이 넘겨주면 어떻게 알 수 있나?
+    .map(function (stooge) { //todo: 인자 없이 넘겨주면 어떻게 알 수 있나? 답변: _.chain 래퍼 객체가 수정한 버전에 의해서 앞에 인자가 없는 버전으로 바뀜
         return stooge.name + ' is ' + stooge.age;
     })
     .first()
