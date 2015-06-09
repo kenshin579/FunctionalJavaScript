@@ -145,7 +145,7 @@ function invoker(NAME, METHOD) {
         console.log("   > arguments:", JSON.stringify(arguments)); //=> [0,[[1,2,3]]]
         console.log("   > args:", JSON.stringify(args)); //=> [0,[[1,2,3]]]
 
-        return doWhen((existy(targetMethod) && METHOD === targetMethod), function () { //todo: 왜 existy가 필요한지는 잘 모르겠음.
+        return doWhen((existy(targetMethod) && METHOD === targetMethod), function () {
             return targetMethod.apply(target, args);
         });
     };

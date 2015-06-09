@@ -170,7 +170,7 @@ console.info("_.extend:", _.extend(person, {lname: "Petrikov"}, {age: 28}, {age:
 /**
  * 변이 되지 않도록 수정한 버전
  * todo: 적확하게 이해되지는 않는다. 왜 변의되지 않는지? 그리고 왜 construct를 사용했는지?
- * - cat() 함수에 있는 concat에서 새로운 array를 반환한다.
+ * - cat() 함수에 있는 concat에서 새로운 array를 반환한다. cat은 불변성을 깨뜨지 않음
  * 의도는 {}<-이게 첫번째 인자가 되게 함
  */
 function merge(/*args*/) {
@@ -187,6 +187,8 @@ function Point(x, y) {
     this._y = y;
 }
 
+//객체 생성자를 비공개필드로 정의함
+//- Point의 내부를 외부로 공개하지 않으면서도 필요한 기능을 제공하는 API를 만들 수 있다.
 Point.prototype = {
     withX: function (val) {
         return new Point(val, this._y);
@@ -195,57 +197,107 @@ Point.prototype = {
         return new Point(this._x, val);
     }
 };
-//
-//function Queue(elems) {
-//    this._q = elems;
-//}
-//
-//Queue.prototype = {
-//    enqueue: function(thing) {
-//        return new Queue(cat(this._q, [thing]));
-//    }
-//};
-//
-//var SaferQueue = function(elems) {
-//    this._q = _.clone(elems);
-//}
-//
-//SaferQueue.prototype = {
-//    enqueue: function(thing) {
-//        return new SaferQueue(cat(this._q, [thing]));
-//    }
-//};
-//
-//function queue() {
-//    return new SaferQueue(_.toArray(arguments));
-//}
-//
-//var q = queue(1,2,3);
-//
-//var enqueue = invoker('enqueue', SaferQueue.prototype.enqueue);
-//
-//enqueue(q, 42);
-////=> {_q: [1, 2, 3, 42]}
-//
-//function Container(init) {
-//    this._value = init;
-//};
-//
-//Container.prototype = {
-//    update: function(fun /*, args */) {
-//        var args = _.rest(arguments);
-//        var oldValue = this._value;
-//
-//        this._value = fun.apply(this, construct(oldValue, args));
-//
-//        return this._value;
-//    }
-//};
-//
-//var aNumber = new Container(42);
-//
-//aNumber.update(function(n) { return n + 1 });
-////=> 43
-//
-//aNumber;
-////=> {_value: 43}
+
+var p = new Point(0, 1);
+console.info("p:", p.withX(1000)); //=> {_x: 1000, _y: 1}
+console.info("p:", p); //=> {_x: 0, _y: 1}
+
+//chaining API도 만들 수 있다.
+console.info("p:", (new Point(0, 1)).withX(100).withY(-100)); //=> {_x: 100, _y: -100}
+
+
+function Queue(elems) {
+    this._q = elems;
+}
+
+Queue.prototype = {
+    enqueue: function (thing) {
+        return new Queue(cat(this._q, [thing]));
+    }
+};
+
+var seed = [1, 2, 3];
+var q = new Queue(seed);
+console.info("q:", JSON.stringify(q)); //=> {"_q":[1,2,3]}
+seed.push(10000); //seed로 제공된 원래 값을 바꾸면 문제가 발생함
+console.info("q:", JSON.stringify(q)); //=> {"_q":[1,2,3,10000]}
+
+//복제를 사용해서 직접 값을 참조하지 못하도록 함
+var SaferQueue = function (elems) {
+    this._q = _.clone(elems);
+}
+
+/*
+ cat을 이용하면 SafeQueue 인스턴스간에 참조를 공유하는 문제를 제거할 수 있다.
+ */
+SaferQueue.prototype = {
+    enqueue: function (thing) {
+        return new SaferQueue(cat(this._q, [thing]));
+    }
+};
+
+seed = [1, 2, 3];
+var saferQueue = new SaferQueue(seed);
+var q2 = saferQueue.enqueue(36);
+console.info("q2:", JSON.stringify(q2)); //=> {"_q":[1,2,3,36]}
+
+seed.push(1000);
+console.info("saferQueue:", JSON.stringify(saferQueue)); //=> {"_q":[1,2,3]}
+
+saferQueue._q.push(-10000); //1.변경가능함
+console.info("saferQueue:", JSON.stringify(saferQueue));
+
+//SaferQueue.prototype.enqueue = sqr; //2.이번에도 변경가능함
+//console.info("saferQueue:", q2.enqueue(42));
+
+//7.2.6 객체는 대체로 저수준 동작이다.
+q = SaferQueue([1, 2, 3]);
+//console.info("q.enqueue(32):", q.enqueue(32)); //=> TypeError: Cannot read property 'enqueue' of undefined
+
+//생성자 함수를 선호함
+function queue() {
+    return new SaferQueue(_.toArray(arguments));
+}
+
+//1.생성자 함수 방법
+var q = queue(1, 2, 3);
+console.info("q:", JSON.stringify(q)); //=> {_q: [1, 2, 3]}
+
+//2.invoker 함수를 이용해서 enqueue로 위임할 함수를 만들 수 있다
+var enqueue = invoker('enqueue', SaferQueue.prototype.enqueue);
+
+console.info("enqueue:", JSON.stringify(enqueue(q, 42))); //=> {_q: [1, 2, 3, 42]}
+
+//7.3 변화 제어 정책
+function Container(init) {
+    this._value = init;
+};
+
+/**
+ *
+ *
+ * @type {{update: Function}}
+ */
+Container.prototype = {
+    update: function (fun /*, args */) {
+        var args = _.rest(arguments);
+        var oldValue = this._value;
+        console.log("   Container.update: oldValue:", oldValue, "args:", args);
+
+        this._value = fun.apply(this, construct(oldValue, args));
+
+        return this._value;
+    }
+};
+
+var aNumber = new Container(42);
+console.info("aNumber:", aNumber); //=> {_value: 42}
+console.info("aNumber.update:", aNumber.update(function (n) {
+    return n + 1
+})); //=> 43
+console.info("aNumber:", aNumber); //=> {_value: 43}
+
+console.info("aNumber.update:", aNumber.update(function (n, x, y, z) {
+    return n / x / y / z;
+}, 1, 2, 3)); //=>  7.166666666666667
+
