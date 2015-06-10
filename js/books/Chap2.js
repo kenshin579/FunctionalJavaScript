@@ -303,7 +303,13 @@ console.info("_.where: ", JSON.stringify(_.where(library, {title: "SICP"})));
 
 console.info("title만 가져오기", _.pluck(library, "title"));
 
-//SQL select함수 구현
+/**
+ * SQL select함수 구현
+ *
+ * @param table
+ * @param keys
+ * @returns {Array|*}
+ */
 function project(table, keys) {
     return _.map(table, function (obj) {
         var pickParameters = construct(obj, keys); //[{"title":"SICP","isbn":"0262010771","ed":1},"title","isbn"]
@@ -347,7 +353,13 @@ function as(table, newNames) {
 };
 console.info("as: ", JSON.stringify(as(library, {ed: 'edition'})));
 
-//SQL의 where 함수 구현
+/**
+ * SQL의 where 함수 구현
+ *
+ * @param table
+ * @param pred
+ * @returns {*}
+ */
 function restrict(table, pred) {
     return _.reduce(
         table,

@@ -155,6 +155,11 @@ console.info("_.uniq:", _.uniq([1, 2, 1, 4, 1, 3], false, function (each, index)
 })); //=> [1, 2, 4, 3]
 
 
+/*
+ _.compact(array) : falsy value는 제거해서 compact한 버전의 array를 반환한다.
+ */
+console.info("_.compact:", _.compact([0, 1, false, 2, '', 3])); //=> [1, 2, 3]
+
 console.log("");
 console.warn("Functions________________________________________________________");
 ////_.bind(function, object, *arguments) : 함수를 object에 bind시킨다.
