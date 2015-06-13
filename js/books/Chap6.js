@@ -328,6 +328,7 @@ x[1]['c']['d'] = 10000;
 console.info("y:", JSON.stringify(y));
 
 /**
+ * 객체 level이 깊어도 복사 가능하도록 함
  *
  * @param obj
  * @returns {*}
@@ -337,7 +338,8 @@ function deepClone(obj) {
     if (!existy(obj) || !_.isObject(obj))
         return obj;
 
-    var temp = new obj.constructor();
+    var temp = new obj.constructor(); //todo: constructor로 무엇을 만드나?
+    console.log("    deepClone: temp> ", temp);
     for (var key in obj) {
         if (obj.hasOwnProperty(key)) { //prototype 필드는 복사되지 않도록
             console.log("   deepClone: obj[", key, "]", JSON.stringify(obj[key]));

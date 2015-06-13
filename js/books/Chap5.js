@@ -446,13 +446,14 @@ console.info("sqr:", sqr(10)); //=> 100
  * arg로 함수를 실행을 해서 오류가 있으면 errors array에 메시지를 담고 오류가 없을 경우에는 실행해서 결과값을 반환한다.
  * - 핵심적인 계산 로직과는 독립적으로 선행조건을 추가하도록 부분 적용을 이용했다.
  * - 상당한 플루언트 검증 API이다.
+ *
  * @returns {Function}
  */
 function condition1(/* validators */) {
-    var validators = _.toArray(arguments);
+    var validators = _.toArray(arguments); //함수
 
     return function (fun, arg) {
-        console.log("   condition1 arg > ", arg); //=> 10
+        console.log("   condition1 arg > ", JSON.stringify(arg)); //=> 10
 
         var errors = mapcat(function (isValid) {
             return isValid(arg) ? [] : [isValid.message];
