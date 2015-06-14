@@ -6,15 +6,16 @@ console.info("_.toArray: ", (function () { //=> [2, 3, 4]
 
 ////_.reduce(list, iteratee, [memo], [context]): 하나의 값을 return함
 //- initValue값이 없는 경우에는 list에서 첫번째 값이 initValue로 넘어감
+
 var initValue = 10;
 //first call:   10 + 1 => 11
 //second call:  11 + 2 => 13
 //third call:   13 + 3 => 16
-var sum = _.reduce([1, 2, 3], function (previousValue, currentValue) { //=> 6
-    return previousValue + currentValue;
+var sum = _.reduce([1, 2, 3], function (accu, currentValue) {
+    return accu + currentValue;
 }, initValue);
+console.info("_.reduce: ", sum); //=>16
 
-console.info("_.reduce: ", sum);
 //참고: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce
 console.info("reduce: ", [0, 1, 2, 3, 4].reduce(function (previousValue, currentValue, index, array) {
     return previousValue + currentValue;
@@ -187,19 +188,17 @@ _.bindAll(buttonView, 'onClick', 'onHover');
 
 ////_.compose(*functions) : f(g(h()) 이렇게 각 함수는 함수의 return값을 consumes하면서 결과를 composite한다.
 //- 가장 오른쪽의 함수의 결과가 왼쪽 함수로 하나씩 전달된다.
-var greet = function (name) { //3.hi: MOE <==== !
+var greet = function (name) { //3.hi: <FRANK>
     return "hi: " + name;
 };
-var exclaim = function (statement) { //2.MOE <==== !
+var exclaim = function (statement) { //2.<FRANK>
     return statement.toUpperCase() + "!";
 };
-var last = function (statement) { // 1.moe <====
-    return statement + " <===";
+var parentheses = function (statement) { //1.<Frank>
+    return "<" + statement + "> ";
 };
-var welcome = _.compose(greet, exclaim);
-console.info("welcome:", welcome('moe')); //=> 'hi: MOE!'
-welcome = _.compose(greet, exclaim, last);
-console.info("welcome:", welcome('moe')); //=> welcome: hi: MOE <===!
+welcome = _.compose(greet, exclaim, parentheses);
+console.info("welcome:", welcome('Frank')); //=> welcome: hi: <FRANK> !
 
 console.log("");
 console.warn("Object________________________________________________________");
@@ -269,7 +268,7 @@ console.info("_.identity: ", stooge === _.identity(stooge));//=> true
 console.log("");
 console.warn("Chaining________________________________________________________");
 /*
- _.chain(obj): value()이 호출될때까지 계속 wrapped object를 return함
+ _.chain(obj): value()이 호출될때까지 계속 wrapped object(첫번째 인자가 없는 버전으로 바뀜)를 return함
  */
 var stooges = [{name: 'curly', age: 25}, {name: 'moe', age: 21}, {name: 'larry', age: 23}];
 var youngest = _.chain(stooges) //=> "moe is 21"
@@ -283,6 +282,29 @@ var youngest = _.chain(stooges) //=> "moe is 21"
     .value();
 
 console.info("_.chain: ", JSON.stringify(youngest));
+////_(obj).value(): wrapped object된 객체에서 value을 추출함
+
+console.log("sortBy:", JSON.stringify(_.map(stooges, function (stooge) {
+    return stooge.name + ' is ' + stooge.age;
+})));
+
+var stooges = [{name: 'curly', age: 25}, {name: 'moe', age: 21}, {name: 'larry', age: 23}];
+var youngest = _.chain(stooges)
+    .sortBy(function (stooge) {
+        return stooge.age;
+    })
+    //=>  [{name: 'moe', age: 21}, {name: 'larry', age: 23}, {name: 'curly', age: 25}]
+    .map(function (stooge) {
+        return stooge.name + ' is ' + stooge.age;
+    })
+    //=>  ['moe is 21', 'larry is 23', 'curly is 25']
+    .first()
+    //=> "moe is 21"
+    .value();
+//=> wrapped object 객체에서 value을 추출함
+
+console.info("_.chain1111: ", JSON.stringify(youngest));
+
 ////_(obj).value(): wrapped object된 객체에서 value을 추출함
 console.info("_.value: ", _([1, 2, 3]).value()); //=> [1, 2, 3]
 

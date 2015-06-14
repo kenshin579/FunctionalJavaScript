@@ -71,3 +71,148 @@ console.info("_.reduce: ", _.reduce([1, 2, 3, 4, 5], function (prevObj, value, k
     //return previousValue + currentValue;
     return prevObj;
 }, 2));
+
+console.warn("Functions________________________________________________________");
+console.error("1. 일반 함수 호출");
+function say(something) {
+    console.log(something);
+    console.log("this:", this); //Window Object
+}
+
+say("hello");
+
+console.info(typeof window.say);
+
+console.error("2. 맴버함수 호출");
+var unikys = {
+    name: "frank",
+    say: function (something) {
+        console.log(this);
+        console.log(this.name + ": " + something);
+    }
+};
+
+unikys.say("hello");
+unikys["say"]("hello2");
+
+console.error("3. call/apply 호출");
+unikys.say.call(unikys, "call is called");
+unikys.say.apply(unikys, ["call is called"]);
+unikys.say.apply(null, ["call is called"]);
+
+var gasGuzzler = {
+    year: 2008,
+    model: 'Dodge'
+};
+
+
+function ArrayMaker(arg1, arg2) {
+    this.someProperty = 'whatever';
+    this.theArray = [this, arg1, arg2];
+}
+
+ArrayMaker.prototype = {
+    someMethod: function () {
+        console.log("someMethod callled");
+    },
+    getArray: function () {
+        return this.theArray;
+    }
+};
+
+var am = new ArrayMaker('one', 'two');
+console.log("am:", am);
+//var other = new ArrayMaker('first', 'second');
+//
+//am.getArray();
+//other.getArray();
+
+console.error("4. constructor 호출 (new에 의해서 호출됨)");
+
+/**
+ * Constructor 호출(new에 의해서 호출됨)
+ * 1. new Empty 객체가 생성됨 {}
+ * 2. constructor 속성이 object에 추가됨 (자동으로)
+ * 3. Vehicle.prototype 속성도 자동으로 추가된다 (empty object)
+ * - instance했을 때 prototype 객체에 대해서 암묵적인 참조를 갖게 된다.
+ * 4.새로운 객체, Vehicle()함수츨 호출한다.
+ * - return 값이 없는 경우 this를 반환한다.
+ *
+ * @param color
+ * @constructor
+ */
+var Vehicle = function Vehicle(color) {
+    this.color = color;
+};
+//Vehicle.prototype.wheelCount = 4;
+Vehicle.prototype = {
+    wheelCount: 4,
+    go: function go() {
+        return "Vroom!";
+    }
+};
+
+var vehicle = new Vehicle("tan");
+console.info("vehicle" + JSON.stringify(vehicle));
+console.info("vehicle.constructor:" + vehicle.constructor);
+console.info("vehicle.wheelCount:" + vehicle.wheelCount);
+
+var Car = function Car() {
+};
+Car.prototype = new Vehicle("tan");
+Car.prototype.honk = function honk() {
+    return "BEEP!";
+};
+
+var car = new Car();
+car.honk();
+car.go();
+console.info("car.color:", car.color); //=> tan
+console.info("car.color:", car instanceof Car); //=> true
+console.info("car.color:", car instanceof Vehicle); //=> true
+
+function makeFunc() {
+    var name = "Mozilla";
+
+    function displayName() {
+        //alert(name);
+    }
+
+    return displayName;
+}
+
+var myFunc = makeFunc();
+myFunc();
+
+var x = 10, y = 20, z = 30;
+function outerFunc() {
+    console.log(x, y, z);
+}
+
+function first() {
+    var x = 1;
+    var y = 2;
+
+    (function () {
+        console.log(x, y, z); //undefined, 2, 30
+        var x = 50;
+        y = z;
+        outerFunc(); //10, 20, 30
+    })();
+}
+first();
+
+function foo() {
+    console.log("%0", this);
+}
+
+foo(); //=> global
+console.log(foo === foo.prototype.constructor);
+foo.prototype.constructor();
+
+
+
+
+
+
+
