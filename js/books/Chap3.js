@@ -169,8 +169,9 @@ function whatWasTheLocal() {
     };
 }
 var reportLocal = whatWasTheLocal();
-console.info("whatWasTheLocal: ", whatWasTheLocal()()); //=>The local was : Oh hai
 console.info("reportLocal: ", reportLocal()); //=>The local was : Oh hai
+
+console.info("whatWasTheLocal: ", whatWasTheLocal()()); //=>The local was : Oh hai
 
 //클로저는 지역 변수만 캡처할 수 있는 것은 아니다. 함수 인자도 갭처할 수 있다 (todo: 잘 이해가 안됨)
 function createScaleFunction(FACTOR) {
