@@ -74,7 +74,7 @@ console.info("repeatedly:", repeatedly(3, function () {
 
 console.info("repeatedly:", repeatedly(3, function (n) {
     var id = 'id' + n;
-    $('body').append($("<p>Odelay!</p>").attr('id', id));
+    //$('body').append($("<p>Odelay!</p>").attr('id', id));
     return id;
 })); //=> ["id0", "id1", "id2"]
 

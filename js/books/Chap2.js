@@ -145,7 +145,7 @@ console.log("_.find: ", _.find(['a', 'b', 3, 'd'], _.isNumber));
 
 function complement(pred) {
     return function () {
-        return !pred.apply(null, _.toArray(arguments)); //todo: 이거 이해가 안됨
+        return !pred.apply(null, _.toArray(arguments));
     };
 }
 console.log("_.reject: ", _.reject(['a', 'b', 3, 'd'], _.isNumber)); //=>a,b,d

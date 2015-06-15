@@ -240,6 +240,10 @@ function argShadow(shadowed) {
     return ["Value is", shadowed].join(' ');
 }
 console.info(argShadow(108));   //=> Value is 108
+/*
+ argShadow 함수의 잉ㄴ자 shadowed 변수는 전역 스코프에 정의된 같은 이름의 변수값을 갈아치웠다. (overwrite)
+ - 항상 '가장 가까운' 변수 바인딩이 우선권을 갖는다.
+ */
 console.info(argShadow());      //=> Value is <-- 인자를 넘겨주지 않아도 세도우 바인딩이 유호함을 확인할 수 있음
 
 function varShadow(shadowed) {
@@ -260,17 +264,21 @@ console.info("closureShadow: ", closureShadow(2)); //=> 3
 
 //3.5.2 클로저 사용하기
 //클로저에서는 클로저가 만들어질 당시에 캡처한 값의 레퍼런스(찬뱡형 PRED)를 캡처한다
-function complement(PRED) {
+/**
+ * complement 함수는 찬반형을 인자로 받아 반대 결과를 반환하는 새로운 함수를 반환함
+ *
+ * @param PRED
+ * @returns {Function}
+ */
+function complement(PRED) { //반환되는 함수는 PRED를 캡쳐한다
     return function () {
-        return !PRED.apply(null, _.toArray(arguments)); //반환되는 함수는 PRED를 캡쳐한다
+        return !PRED.apply(null, _.toArray(arguments));
     };
 }
 
-function isEven(n) {
-    return (n % 2) === 0
-}
-
+function isEven(n) { return (n % 2) === 0 }
 var isOdd = complement(isEven);
+
 console.info("isOdd:", isOdd(2));   //=> false
 console.info("isOdd:", isOdd(413)); //=> true
 
@@ -322,7 +330,13 @@ pingpong.div = function (n) {
 //console.info("pingpong.div: ", pingpong.div(3)); //=> PRIVATE is not defined
 
 //3.5.3 추상화 도구 클로저
-//plucker함수는 (배열이나 객체 같은) 연상 구조체를 키로 받아서 주어진 구조체에서 키에 해당하는 값을 반환하는 함수를
+/**
+ * plucker함수는 (배열이나 객체 같은) 연상 구조체를 키로 받아서
+ * 주어진 구조체에서 키에 해당하는 값을 반환하는 함수
+ *
+ * @param FIELD
+ * @returns {Function}
+ */
 function plucker(FIELD) {
     return function (obj) {
         return (obj && obj[FIELD]);
@@ -335,6 +349,11 @@ console.info("getTitle:", getTitle(best)); //=> "Infinite Jest"
 
 var books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
 var third = plucker(2);
-console.info("third:", third(books)); //=> {title: "Botchan"}
+console.info("third:", third(books));
+//=> {title: "Botchan"}
 
-console.info(JSON.stringify(_.filter(books, getTitle))); //=> [{"title":"Chthon"},{"title":"Botchan"}]
+var books = [{title: "Chthon"}, {stars: 5}, {title: "Botchan"}];
+var filterResult = _.filter(books, getTitle);
+
+console.info(JSON.stringify(filterResult));
+//=> [{"title":"Chthon"},{"title":"Botchan"}]
