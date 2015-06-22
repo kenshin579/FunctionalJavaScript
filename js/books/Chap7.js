@@ -3,17 +3,20 @@ console.warn("Chap7_____________________________________________________________
 
 var rand = partial1(_.random, 1);
 
-console.info("rand:", rand(10));
-console.info("repeatedly:", repeatedly(10, partial1(rand, 10)));
+//1~10까지 중에서 number
+console.info("rand:", rand(10)); //=> 1
+console.info("repeatedly:", repeatedly(10, partial1(rand, 10))); //=> [20]
 console.info("repeatedly:", _.first(repeatedly(100, partial1(rand, 10)), 5));
+//=> [19, 13, 8, 1, 13, 3, 19, 13, 7, 10]
 
 function randString(len) {
-    var ascii = repeatedly(len, partial1(rand, 26));
+    var ascii = repeatedly(len, partial1(rand, 26)); //1~26중에서
 
     return _.map(ascii, function (n) {
-        return n.toString(36);
+        return n.toString(36); //base 36으로 바꿈
     }).join('');
 }
+
 console.info("randString:", randString(0)); //=> ""
 console.info("randString:", randString(1)); //=> "b"
 console.info("randString:", randString(10)); //=> "fqoppcfnqa"

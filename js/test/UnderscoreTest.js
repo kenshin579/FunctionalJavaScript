@@ -28,7 +28,7 @@ console.info("_.reduce: ", _.reduce({'a': 'AAA'}, function (prevObj, value, key)
     return prevObj;
 }, {b: 2}));
 
-////_.reduceRight(list, iteratee, memo, [context]) :
+////_.reduceRight(list, iteratee, memo, [context]) : 요소를 오른쪽에서 왼쪽으로 처리함
 var list = [[0, 1], [2, 3], [4, 5]];
 var flat = _.reduceRight(list, function (a, b) { //=> [4, 5, 2, 3, 0, 1]
     console.info("a: ", a, " b: ", b);
@@ -163,12 +163,14 @@ console.info("_.compact:", _.compact([0, 1, false, 2, '', 3])); //=> [1, 2, 3]
 
 console.log("");
 console.warn("Functions________________________________________________________");
-////_.bind(function, object, *arguments) : 함수를 object에 bind시킨다.
-//이 의미는 함수가 실행될때마다 this의 값이 object가 된다.
+/*
+ _.bind(function, object, *arguments) : 함수를 object에 bind시킨다.
+ - 함수가 호출될때마다 this는 object가 될 것이다.
+ -
+ */
 var func = function (greeting) { //gretting <- arguments
     return greeting + ': ' + this.name
 };
-
 func = _.bind(func, {name: 'moe'}, 'hi'); //'{name: 'mode'} ->
 console.info("_.bind:", func()); //=> 'hi: moe'
 

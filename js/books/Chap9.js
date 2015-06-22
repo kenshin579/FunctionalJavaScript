@@ -309,8 +309,8 @@ console.info(c.swap(42, 43));
  */
 
 /**
- * this.initialize 호출은 믹스인을 정의하거나 또는 클라이언트가 Container와 상호작용을 하는 방식 이외의
- * Container 확장 수단을 제공한다. todo: 어떻게?
+ * this.initialize 호출은 믹스인을 정의하거나 또는 클라이언트가 Container와
+ * 상호작용을 하는 방식 이외의 Container 확장 수단을 제공한다.
  *
  *  * 확장 프로토콜
  * - init 메서드를 반드시 제공한다.
@@ -388,8 +388,7 @@ var ObserverMixin = (function () {
 }());
 
 /**
- * ValidateMinin이 initialize 확장 요구사항을 만족시킨다.
- * todo: prototype 형식 대신에 아래와 같이 할 수 있다.
+ * ValidateMixin이 initialize 확장 요구사항을 만족시킨다.
  *
  * @type {{addValidator: Function, initialize: Function, validate: Function}}
  */
@@ -408,7 +407,6 @@ var ValidateMixin = {
 
 /*
  Hole 형식의 요구사항을 모두 만족시킨다.
- todo: 이렇게 되면 어떻게 되는 건가?
  */
 _.extend(Hole.prototype
     , HoleMixin

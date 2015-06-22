@@ -72,12 +72,21 @@ console.info("repeatedly:", repeatedly(3, function () {
     return "Hello";
 })); //=> ["Hello", "Hello", "Hello"]
 
-console.info("repeatedly:", repeatedly(3, function (n) {
-    var id = 'id' + n;
-    //$('body').append($("<p>Odelay!</p>").attr('id', id));
-    return id;
-})); //=> ["id0", "id1", "id2"]
+//
+//console.info("repeatedly:", repeatedly(3, function (n) {
+//    var id = 'id' + n;
+//        $('body').append($("<p>Odelay!</p>").attr('id', id));
+//    return id;
+//})); //=> ["id0", "id1", "id2"]
 
+/**
+ * iterateUntil은 어떤 동작을 수행하는 함수와 특정조건이 만족할때까지만 함수 호출을 반복하는 함수이다.
+ *
+ * @param fun
+ * @param checkPred
+ * @param init
+ * @returns {Array}
+ */
 function iterateUntil(fun, checkPred, init) {
     var ret = [];
     var result = fun(init); //함수 호출 결과를 다음번 함수 호출의 인자로 전달한다.
@@ -129,15 +138,15 @@ console.info("always:", repeatedly(3, always("Hello"))); //=> ["Hello", "Hello",
 /**
  * 첫번째 인자로 받은 객체에 메서드를 호출하는 함수다
  * - 대상객체가 호출하려는 메서드를 제공하지 않으면 undefined를 반환된다
+ * todo: arguments에 왜 args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]}가 나오는가?
+ * - map 함수의 3인자가 있음, 1.value, 2.index, 3.전체 list
  *
  * @param NAME
  * @param METHOD
  * @returns {Function}
  */
 function invoker(NAME, METHOD) {
-    console.log("   invoker");
-
-    return function (target /* args ... */) { //args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]}
+    return function (target /* args ... */) { //args = {"0":[1,2,3],"1":0,"2":[[1,2,3]]} (map 함수때문에 이렇게 나옴)
         if (!existy(target)) fail("Must provide a target");
 
         var targetMethod = target[NAME];
@@ -149,18 +158,17 @@ function invoker(NAME, METHOD) {
             return targetMethod.apply(target, args);
         });
     };
-};
+}
 
 var rev = invoker('reverse', Array.prototype.reverse);
 console.log("invoker:", rev);
-console.info("rev:", JSON.stringify(_.map([[1, 2, 3]], rev))); //=> [[3,2,1]] //todo: 잘 이해가 안감!!!
+//console.info("rev:", JSON.stringify(_.map([[1, 2, 3]], rev))); //=> [[3,2,1]]
+console.info("rev:", JSON.stringify(_.map([1, 2, 3], rev))); //=> [[3,2,1]]
 
-function argsTest(target) {
+function argsTest1(target) {
     console.log("  > arguments", JSON.stringify(arguments));
 }
-
-console.info("argsTest:", argsTest([1, 2, 3], [3, 4, 5])); //=> {"0":[1,2,3],"1":[3,4,5]}
-
+console.info("argsTest1:", argsTest1([1, 2, 3], [3, 4, 5])); //=> {"0":[1,2,3],"1":[3,4,5]}
 
 //4.2.1 고차원 함수로 인자 갭처하기
 var add100 = makeAdder(100); //고차원 함수를 구현하려면 다른 함수를 반환하는 함수가 필요함
@@ -282,11 +290,11 @@ console.info("doSomething:", doSomething({})); //=> 108
  */
 function checker(/* validators */) {
     var validators = _.toArray(arguments);
-    console.log("   checker > validators:", validators);
+    //console.log("   checker > validators:", validators);
 
     return function (obj) {
         return _.reduce(validators, function (errs, check) {
-            console.log("   checker > errs:", errs, "check:", check);
+            //console.log("   checker > errs:", errs, "check:", check);
 
             if (check(obj)) //함수를 콜
                 return errs;
@@ -315,8 +323,7 @@ console.info("alwaysFails:", alwaysFails({})); //=>["a failure in life"]
  */
 function validator(message, fun) {
     var f = function (/* args */) {
-        return fun.apply(fun, arguments); //todo: 첫번째 인자에 fun을 왜 넣었나?
-        //return fun.apply(null, arguments);
+        return fun.apply(fun, arguments);
     };
 
     f['message'] = message;
@@ -327,14 +334,14 @@ var gonnaFail = checker(validator("ZOMG!", always(false)));
 console.info("gonnaFail:", gonnaFail(100)); //=> ["ZOMG!"]
 
 
-//aMap: {} 객체 인지 판단해줌.
+/* aMap: {} 객체 인지 판단해줌. */
 function aMap(obj) {
     return _.isObject(obj);
 }
 
 var checkCommand = checker(validator("must be a map", aMap));
-console.info("checkCommand:", checkCommand({}));
-console.info("checkCommand:", checkCommand(42));
+console.info("checkCommand:", checkCommand({})); //=> []
+console.info("checkCommand:", checkCommand(42)); //=> ['must be a map']
 
 /**
  * key가 객체 있는지 확인하는 함수를 반환하고 없으면 오류 메시지를 추가한다.
@@ -355,7 +362,7 @@ function hasKeys() {
     return fun;
 }
 
-var checkCommand = checker(validator("must be a map", aMap), hasKeys('msg', 'type'));
-console.info("checkCommand:", checkCommand({msg: "balh", type: "display"})); //=> []
-console.info("checkCommand:", checkCommand(1)); //=> ["must be a map", "Must have values for keys: msg type"]
-console.info("checkCommand:", checkCommand({})); //=> ["Must have values for keys: msg type"]
+var checkCommandWithHasKeys = checker(validator("must be a map", aMap), hasKeys('msg', 'type'));
+console.info("checkCommandWithHasKeys:", checkCommandWithHasKeys({msg: "balh", type: "display"})); //=> []
+console.info("checkCommandWithHasKeys:", checkCommandWithHasKeys(1)); //=> ["must be a map", "Must have values for keys: msg type"]
+console.info("checkCommandWithHasKeys:", checkCommandWithHasKeys({})); //=> ["Must have values for keys: msg type"]

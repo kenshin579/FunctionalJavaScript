@@ -120,7 +120,7 @@ _.bindAll(target, 'aux', 'act'); //aux, act 함수가 실행될때마다 target 
 console.info("target.aux.call:", target.aux.call('wat')); //=>the right value
 console.info("target.act.call:", target.act.call('wat')); //=>the right value
 
-//3.4 함수 스코프:
+//3.4 함수 스코프
 function strangeIdentity(n) {
     // intentionally strange
     for (var i = 0; i < n; i++);
@@ -135,6 +135,9 @@ function strangeIdentity(n) {
     return i;
 }
 
+/*
+ todo: 어떻게 함수 스코프를 시뮬레이션 하는가?
+ */
 function strangerIdentity(n) {
     // intentionally stranger still
     console.log("  > this: ", this); //i: 108으로 세팅이 됨
@@ -146,8 +149,10 @@ console.info("strangeIdentity: ", strangerIdentity(108)); //=> 108
 console.info("i:", i); //실제로 전역 객체의 값을 바꿨음.
 console.info("strangeIdentity.call: ", strangerIdentity.call({}, 10000)); //=> 10000
 
-//todo: 이 부분 잘 이해가 안된다.
-//clone을 사용하면 전역 컨텍스트를 넘겨주는 문제를 해결할 수 있다
+/*
+ todo: 이 부분 잘 이해가 안된다.
+ - clone을 사용하면 전역 컨텍스트를 넘겨주는 문제를 해결할 수 있다
+ */
 function f() {
     this['a'] = 200;
     return this['a'] + this['b'];
@@ -173,13 +178,13 @@ console.info("reportLocal: ", reportLocal()); //=>The local was : Oh hai
 
 console.info("whatWasTheLocal: ", whatWasTheLocal()()); //=>The local was : Oh hai
 
-//클로저는 지역 변수만 캡처할 수 있는 것은 아니다. 함수 인자도 갭처할 수 있다 (todo: 잘 이해가 안됨)
+/*
+ 클로저는 지역 변수만 캡처할 수 있는 것은 아니다. 함수 인자도 갭처할 수 있다
+ */
 function createScaleFunction(FACTOR) {
-    console.log("FACTOR: ", FACTOR);
     return function (v) {
         return _.map(v, function (n) {
-            var test = "frank";
-            return (n * FACTOR); //외부 factor 변수에 접근할 수 있고 내부안에서 작업함
+            return (n * FACTOR);
         });
     };
 }
@@ -187,15 +192,21 @@ function createScaleFunction(FACTOR) {
 var scale10 = createScaleFunction(10); //여기서 넘겨줬는데 아래에서 기억을 하고 있음
 console.log("scale10: ", scale10([1, 2, 3])); //=> [10, 20, 30]
 
-//클로저 simulation
+/*
+ 클로저 simulation
+ todo: 1/2정도 이해한 듯함
+ - 함수 스코프 this 이용해서 클로저를 시뮬레이션 한다.
+ - 폐쇄된 closed 변수를 갭처하면서 동시에 폐쇄되지 않은 변수에 접근할 수 있는 방법을 만들어야 한다.
+ */
 function createWeirdScaleFunction(FACTOR) {
-    return function (v) {
+    return function (arr) {
+        //넘겨준 변수를 {FACTOR: 10}에 저장함
         this['FACTOR'] = FACTOR;
         var captures = this;
-        console.log("  > captures: ", captures);
 
-        return _.map(v,
-            _.bind(function (n) { //_.bind은 함수가 실행될때마다 this의 객체가 captures로 설정된다는 것
+        //_.bind함수는 func 가 호출될때마다 this의 값이 넘겨준 객체로 세팅됨
+        return _.map(arr,
+            _.bind(function (n) {
                 return (n * this['FACTOR']);
             }, captures)
         );
@@ -203,7 +214,7 @@ function createWeirdScaleFunction(FACTOR) {
 }
 
 var scale10 = createWeirdScaleFunction(10);
-console.info("scale10:", scale10.call({}, [5, 6, 7])); //=> [50, 60, 70];
+console.info("createWeirdScaleFunction:", scale10.call({}, [5, 6, 7])); //=> [50, 60, 70];
 
 //캡처된 변수: 지역적인 선언없이(전달되지도 않았으면 지역에서 정의되지 않은) 어떤 함수에서 변수를 사용한다면 캡처된 변수다
 function makeAdder(CAPTURED) {
@@ -276,7 +287,9 @@ function complement(PRED) { //반환되는 함수는 PRED를 캡쳐한다
     };
 }
 
-function isEven(n) { return (n % 2) === 0 }
+function isEven(n) {
+    return (n % 2) === 0
+}
 var isOdd = complement(isEven);
 
 console.info("isOdd:", isOdd(2));   //=> false
@@ -306,11 +319,15 @@ console.info("showO:", showO()); //=> {a:42}
 o.newField = 108;
 console.info("showO:", showO()); //=> {a: 42, newField: 108}
 
-//익명 함수 내에서 만들어진 갭처된 변수 PRIVATE가 두 클로저에 비공개로 되어 있어서 두 함수를 호출하는 것
-//이외에 접근할 방법이 없다
+/**
+ * - 익명 함수 내에서 pingpong 객체가 만들어지며 pingpong 객체는 스코프를 차단하는 역할
+ * - inc, dec함수는 갭처된 변수 PRIVATE를 공유하고 있다.
+ *
+ * @type {{inc, dec}}
+ */
 var pingpong = (function () {
     var PRIVATE = 0;
-    return {
+    return { //public 함수의 정의
         inc: function (n) {
             return PRIVATE += n;
         },
@@ -319,7 +336,6 @@ var pingpong = (function () {
         }
     };
 })();
-
 console.info("pingpong.inc: ", pingpong.inc(10)); //=> 10
 console.info("pingpong.dec: ", pingpong.dec(7)); //=> 3
 

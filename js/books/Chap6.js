@@ -427,7 +427,8 @@ function influencedWithStrategy(strategy, lang, graph) {
 console.info("influencedWithStrategy:", influencedWithStrategy(postDepth, "Lisp", influences)); //=> ["Smalltalk", "Scheme"]
 
 //6.3 너무 깊은 재귀!
-//console.info("evenSteven:", evenSteven(100000)); //Uncaught RangeError: Maximum call stack size exceeded
+console.info("evenSteven:", evenSteven(100000));
+//=> Uncaught RangeError: Maximum call stack size exceeded
 function evenOline(n) {
     if (n === 0)
         return true;
@@ -467,7 +468,7 @@ function trampoline(fun /*, args */) {
     return result;
 }
 console.info("trampoline:", trampoline(oddOline, 3)); //=> true
-//console.info("trampoline:", trampoline(evenOline, 200000));
+console.info("trampoline:", trampoline(evenOline, 200000));
 //console.info("trampoline:", trampoline(oddOline, 3000000));
 //console.info("trampoline:", trampoline(evenOline, 200000000));
 

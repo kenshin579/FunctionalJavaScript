@@ -29,6 +29,10 @@ function dispatch(/* funs */) {
     };
 }
 
+/*
+ - key point: if-then-else 문을 이용하는 함수를 이용하는 대신 Array.prototype.toString
+ - 이라는 상세 구현에 형식 및 존재확인 작업을 위임했다.
+ */
 var str = dispatch(
     invoker('toString', Array.prototype.toString),
     invoker('toString', String.prototype.toString)
@@ -36,8 +40,6 @@ var str = dispatch(
 
 console.info("str:", str("a")); //=> "a"
 
-//key point: if-then-else 문을 이용하는 함수를 이용하는 대신 Array.prototype.toString
-//이라는 상세 구현에 형식 및 존재확인 작업을 위임했다.
 console.info("str:", str(_.range(10))); //=> "0,1,2,3,4,5,6,7,8,9"
 console.info("str:", str([1, 2, 3])); //=> "1,2,3"
 console.info("str:", str({})); //=> undefined
@@ -65,16 +67,15 @@ console.info("sillyReverse:", sillyReverse("abc")); //=> "cba"
 console.info("sillyReverse:", sillyReverse(100000)); //=> 42
 
 function notify(message) {
-    //console.warn("notify:", message);
     return "Notify 실행함";
 }
-
 function changeView(message) {
-    //console.warn("changeView:", message);
     return "changeView 실행함";
 }
 
-//아래 switch형식의 함수를 dispatch로 교체할 수 있다.
+/*
+ 아래 switch형식의 함수를 dispatch로 교체할 수 있다.
+ */
 function performCommandHardcoded(command) {
     var result;
 
@@ -92,21 +93,18 @@ function performCommandHardcoded(command) {
 }
 console.info("performCommandHardcoded:",
     performCommandHardcoded({type: 'notify', message: 'hi'})
-);
+); //=> performCommandHardcoded: Notify 실행함
 console.info("performCommandHardcoded:",
     performCommandHardcoded({type: 'join', target: 'waiting-room'})
-);
+); //=> performCommandHardcoded: changeView 실행함
+
 //console.info("performCommandHardcoded:",
 //    performCommandHardcoded({type: 'wat'})
 //);
 
-/**
- * 반환된 함수는 type 문자열과 obj.type 필드가 일치하면 action함수를 호출하고
- * 일치하지 않으면 undefined를 반환한다.
- *
- * @param type
- * @param action
- * @returns {Function}
+/*
+ 반환된 함수는 type 문자열과 obj.type 필드가 일치하면 action함수를 호출하고
+ 일치하지 않으면 undefined를 반환한다.
  */
 function isa(type, action) {
     return function (obj) {
@@ -129,12 +127,13 @@ var performCommand = dispatch(
 );
 
 function shutdown(hostname) {
-    //console.warn("shutdown:", hostname);
-    return "shutdown 실행함";
+    return hostname + ": shutdown 실행함";
 }
 
-//확장하는 방식: vs switch 구문
-//- dispatch함수로 performCommandHarcoded를 래핑하면 간단하게 새 기능을 추가할 수 있다.
+/*
+ 확장하는 방식: vs switch 구문
+ - dispatch함수로 performCommand를 래핑하면 간단하게 새 기능을 추가할 수 있다.
+ */
 var performAdminCommand = dispatch(
     isa('kill', function (obj) {
         return shutdown(obj.hostname)
@@ -170,9 +169,11 @@ console.info("performTrialUserCommand:",
 );
 
 //5.1.1 변이는 저수준 동작이다.
-//5.2 커링: 각각의 논리적 인자에 대응하는 새로운 함수를 반환하는 함수를 커리(혹은 커리된) 함수라고 함
-//- 커리 함수는 각각의 논리 파라미터를 이용해서 점차 세부적으로 설정된 함수를 반환한다.
-//todo: 왜 이게 필요한지 그리고 어느곳에서 쓰면 유용한지 잘 모르겠음
+/*
+ 5.2 커링: 각각의 논리적 인자에 대응하는 새로운 함수를 반환하는 함수를 커리(혹은 커리된) 함수라고 함
+ - 커리 함수는 각각의 논리 파라미터를 이용해서 점차 세부적으로 설정된 함수를 반환한다.
+ todo: 왜 이게 필요한지 그리고 어느곳에서 쓰면 유용한지 잘 모르겠음
+ */
 function rightAwayInvoker() {
     var args = _.toArray(arguments);
     console.log("  > args:", args);
@@ -211,11 +212,11 @@ console.info("divide10By:", divide10By(2)); //=> 10 / 2 -> 5
 var over10 = rightCurryDiv(10); //? / 10
 console.info("divide10By:", over10(2)); //=> 0.2
 
-//5.2.2 자동 커리 파라미터
-//
+/*
+ 5.2.2 자동 커리 파라미터
+ */
 function curry(fun) {
     return function (arg) {
-        console.log("   > arg:", arg);
         return fun(arg);
     };
 }
@@ -224,21 +225,31 @@ console.info("parseInt:", parseInt(['11', '12', '13', '11'])); //=> 11
 console.info("parseInt:", parseInt('11')); //=> 11
 console.info("parseInt:", parseInt('11', 2)); //=> 3
 
-//todo: 아래 잘 이해 안됨. radix: 0, 1, 2, 3순으로 제공된다. 왜? 모름
+/*
+ todo: 아래 잘 이해 안됨. radix: 0, 1, 2, 3순으로 제공된다. 왜? 잘 모르겠음.
+ - 이해되는 것 같음.
+ */
 console.info("map:", ['11', '11', '11', '11'].map(parseInt)); //=> [11, NaN, 3, 4]
-console.info("_.map:", _.map(['11', '11', '11', '11'], parseInt)); //=> [11, NaN, 3, 4]
-console.info("_.map:", _.map(['11', '11', '11', '11'], function (each, index) {
-    console.log("  > each:", each, "index:", index, "parseInt:", parseInt(each, index)); //<- 왜 이렇게 넘겨주게 되나?
-    return parseInt(each, index);
-})); //=> [11, NaN, 3, 4]
 console.info("map:", ['11', '11', '11', '11'].map(curry(parseInt))); //=> [11, 11, 11, 11]
 console.info("map:", ['11', '12', '13', '14'].map(curry(parseInt))); //=> [11, 12, 13, 14]
 
+//underscore 버전
+console.info("_.map:", _.map(['11', '11', '11', '11'], parseInt)); //=> [11, NaN, 3, 4] <- todo: 왜 이렇게 넘겨주게 되나?
+console.info("_.map:", _.map(['11', '11', '11', '11'], function (each, index) {
+    //> each: 11 index: 0 parseInt: 11
+    //> each: 11 index: 1 parseInt: NaN
+    //> each: 11 index: 2 parseInt: 3
+    //> each: 11 index: 3 parseInt: 4
+    console.log("  > each:", each, "index:", index, "parseInt:", parseInt(each, index));
+    return parseInt(each, index);
+    //return parseInt(each);
+})); //=> [11, NaN, 3, 4]
+
+console.info("_.map:", _.map(['11', '11', '11', '11'], curry(parseInt))); //=> [11, 11, 11, 11]
 
 function curry2(fun) { //(div*)(10)(50)
     return function (secondArg) { //(div)(10*)(50)
         return function (firstArg) { //(div)(10)(50*)
-            console.log("   curry2 > 1st:", firstArg, "2nd:", secondArg);
             return fun(firstArg, secondArg);
         };
     };
@@ -251,6 +262,7 @@ function div(n, d) { //50 / 10
 var div10 = curry2(div)(10);
 
 console.info("div10:", div10(50)); //=> 5
+
 //fun  //secondArg
 var parseBinaryString = curry2(parseInt)(2);
 //firstArg
@@ -265,9 +277,9 @@ var plays = [{artist: "Burial", track: "Archangel"},
     {artist: "Emeralds", track: "Snores"},
     {artist: "Burial", track: "Archangel"}];
 
-console.info("_.countBy:", _.countBy(plays, function (song) {
+console.info("_.countBy:", JSON.stringify(_.countBy(plays, function (song) {
     return [song.artist, song.track].join(" - "); //같은 것끼리 묶어서 count를 함
-}));
+})));
 //=> {"Ben Frost - Stomp": 2,
 //    "Burial - Archangel": 3,
 //    "Emeralds - Snores": 1}
@@ -276,8 +288,9 @@ function songToString(song) {
     return [song.artist, song.track].join(" - ");
 }
 
+/* countBy와 songToString 함수를 조립해서 만듬 */
 var songCount = curry2(_.countBy)(songToString);
-console.info("songCount:", songCount(plays));
+console.info("songCount:", JSON.stringify(songCount(plays)));
 //=> {"Ben Frost - Stomp": 2,
 //    "Burial - Archangel": 3,
 //    "Emeralds - Snores": 1}
@@ -287,7 +300,6 @@ function curry3(fun) {
     return function (last) {
         return function (middle) {
             return function (first) {
-                console.log("   first:", first, " middle:", middle, "last:", last);
                 return fun(first, middle, last);
             };
         };
@@ -350,7 +362,6 @@ console.info("over10Part:", over10Part(2)); //=> 5
 //5.3.1 한 두개의 알려진 인자를 부분 적용
 /**
  * 기존 호출로부터 arg1 인자를 캡처한 다음에 실행 호출의 인자 목록 앞부분에 추가한다.
- * todo: 변수를 캡처하는 목적은 무엇인가?
  * - 캡처된 함수/변수의 참조값을 가지고 있게 된다.
  *
  * @param fun
@@ -375,10 +386,10 @@ function partial1Bind(fun, arg1) {
     };
 }
 
-var div10By1Bind = partial1Bind(div, 10);
-console.info("div10By1Bind:", div10By1Bind(5)); //=> 2
-console.info("partial1(div, 10)(5):", partial1Bind(div, 10)(5)); //=> 2
-
+//var div10By1Bind = partial1Bind(div, 10);
+//console.info("div10By1Bind:", div10By1Bind(5)); //=> 2
+//console.info("partial1(div, 10)(5):", partial1Bind(div, 10)(5)); //=> 2
+//
 function partial2(fun, arg1, arg2) {
     return function (/* args */) {
         var args = cat([arg1, arg2], arguments);
@@ -388,22 +399,21 @@ function partial2(fun, arg1, arg2) {
 var div10By2 = partial2(div, 10, 2);
 console.info("div10By2:", div10By2()); //=> 5
 
+
 //5.3.2 임의의 수의 인자를 부분 적용
 /**
  * 임의의 수의 인자를 받아서 부분 적용할 수 있다.
  * - 한번에 인자를 합쳐서 호출 가능하다.
- * - 몇개의 인자를 받아 가장 왼쪽 인자*를 이용해서 함수를 반환하는 partial를 살펴봄 todo: 이 부분 이해가 안됨.
+ * - 몇개의 인자를 받아 가장 왼쪽 인자를 이용해서 함수를 반환하는 partial를 살펴봄
  *
  * @param fun
  * @returns {Function}
  */
 function partial(fun /* pargs */) { //(div, 10)(2)
     var pargs = _.rest(arguments); //=> [10]
-    console.log("   partial > pargs:", pargs);
 
     return function (/* arguments */) {
         var args = cat(pargs, _.toArray(arguments)); //[10, 2]
-        console.log("   partial > args:", args);
         return fun.apply(fun, args);
     };
 }
@@ -414,8 +424,11 @@ console.info("over10Partial:", over10Partial(2)); //=> 5
 var div10By2By4By5000Partial = partial(div, 10, 2, 4, 5000);
 console.info("div10By2By4By5000Partial:", div10By2By4By5000Partial()); //=> 5
 
-//5.3.3. 부분 적용 사례: 선행조건
+/*
+ 5.3.3. 부분 적용 사례: 선행조건
+ */
 console.info("validator:", validator("arg must be a map", aMap)(42)); //=> false
+
 var zero = validator("cannot be zero", function (n) {
     return 0 === n
 });
@@ -444,7 +457,7 @@ console.info("sqr:", sqr(10)); //=> 100
 
 /**
  * arg로 함수를 실행을 해서 오류가 있으면 errors array에 메시지를 담고 오류가 없을 경우에는 실행해서 결과값을 반환한다.
- * - 핵심적인 계산 로직과는 독립적으로 선행조건을 추가하도록 부분 적용을 이용했다.
+ * - 핵심적인 계산 로직과는 독립적으로 선행조건을 추가하도록 부분 적용을 이용했다. (partial 함수와 비슷함)
  * - 상당한 플루언트 검증 API이다.
  *
  * @returns {Function}
@@ -479,7 +492,7 @@ console.info("sqrPre:", sqrPre(_.identity, 10)); //=> 10
 //문제인 함수
 function uncheckedSqr(n) {
     return n * n
-};
+}
 
 //빈 문자열의 제곱이 0일수는 없다. 오류!!!
 console.info("uncheckedSqr:", uncheckedSqr('')); //=> 0
@@ -498,85 +511,85 @@ console.info("checkedSqr:", checkedSqr(10)); //=> 100
 //    checkedSqr
 //);
 
-//todo: 아래 오류가 발생함. 이해가 안됨
-//console.info("sillySquare:", sillySquare(10)); //=> 100
-//console.info("sillySquare:", sillySquare(11)); //=> Error: should be even
-//console.info("sillySquare:", sillySquare(''));
-//console.info("sillySquare:", sillySquare(0));
-
-//다른 예제.
-var validateCommand = condition1(
-    validator("arg must be a map", _.isObject),
-    validator("arg must have the correct keys", hasKeys('msg', 'type')) //todo: 부분은 아래 오류메시지로 추가가 안되었음.
-);
-
-//todo: 왜 identity함수를 사용했나? 잘 이해안됨.
-//- 책 답변: 자바스크립트에서는 훈련과 심사숙고를 거쳐야 안정성이라는 목표를 달성할 수 있다.
-var createCommand = partial(validateCommand, _.identity); //partial함수는 args를 넣어서 실행하는 함수
-//var createCommand = partial(validateCommand);
-
-//console.info("createCommand:", createCommand({})); //=> Error: arg must have the correct keys
-//console.info("createCommand:", createCommand(21)); //=> Error: arg must be a map, arg must have the correct keys
-console.info("createCommand:", createCommand({msg: "", type: ""})); //=> {msg: "", type: ""}
-
-//todo: 이해하기 어려움
-var createLaunchCommand = partial1( //todo: partial1이 왜 이게 필요한가?
-    condition1(validator("arg must have the count down", hasKeys('countDown'))),
-    createCommand); //todo: <== 이건 어떻게 실행이 되는 건가?
-
-//console.info("createLaunchCommand:", createLaunchCommand({msg: "", type:""})); //=> Error: arg must have the count down
-console.info("createLaunchCommand:", createLaunchCommand({msg: "", type: "", countDown: 10})); //=> {msg: "", type: "", countDown: 10}
-
-//5.4 함수의 끝을 서로 연결하는 함수 조립 방법 (pipelining)
-//_.compose은 오른쪽에서 왼쪽으로 작동한다.
-var isntString = _.compose(
-    function (x) { //x: true -> false
-        console.log("  x:", x);
-        return !x
-    },
-    _.isString //true
-);
-console.info("isntString:", isntString([])); //=> true
-
-function not(x) {
-    return !x
-}
-var isntString2 = _.compose(not, _.isString);
-console.info("isntString2;", isntString2([])); //=> true
-
-var composedMapcat = _.compose(splat(cat), _.map); //todo: splat이 왜 필요한가?
-
-//todo: 왜 identity가 필요한가?
-console.info("composedMapcat:", composedMapcat([[1, 2], [3, 4], [5]], _.identity)); //=> [1, 2, 3, 4, 5]
-
-var composedMapcat2 = _.compose(cat, _.map);
-
-console.info("composedMapcat2:", JSON.stringify(composedMapcat2([1, 2], [3, 4], [5]))); //=> [[1,2],[3,4],[5]]
-console.info("_.map:", JSON.stringify(_.map([[1, 2], [3, 4], [5]])));
-console.info("cat:", JSON.stringify(cat([[1, 2], [3, 4], [5]])));
-
-//5.4.1 조립을 이용해서 선행조건과 후행조건 만들기
-
-var sqrPost = condition1(
-    validator("result should be a number", _.isNumber),
-    validator("result should not be zero", complement(zero)),
-    validator("result should be positive", greaterThan(0)));
-
-//console.info("sqrPost;", sqrPost(_.identity, 0)); //Error: result should not be zero, result should be positive
-//console.info("sqrPost;", sqrPost(_.identity, -1));  // Error: result should be positive
-//console.info("sqrPost;", sqrPost(_.identity, '')); //Error: result should be a number, result should be positive
-console.info("sqrPost;", sqrPost(_.identity, 100)); //=> 100
-
-//질문: 후행검사 check 함수를 어떻게 기존의 uncheckedStr, sqrPre함수에 추가할 수 있는 을까?
-//- 답변: _.compose를 사용하면 된다.
-
-//여기ㅐ서 identity는 왜 필요한가?
-//- 답변: checkedStr의 결과값을 _.identity인자로 넘겨줌)
-var megaCheckedSqr = _.compose(
-    partial(sqrPost, _.identity), //postcondition
-    checkedSqr                    //precondition
-);
-
-console.info("megaCheckedSqr:", megaCheckedSqr(10)); //=> 100
-//console.info("megaCheckedSqr:", megaCheckedSqr(0)); //=> Error: arg must not be zero
-//console.info("megaCheckedSqr:", megaCheckedSqr(NaN)); //Error: result should be positive
+////todo: 아래 오류가 발생함. 이해가 안됨
+////console.info("sillySquare:", sillySquare(10)); //=> 100
+////console.info("sillySquare:", sillySquare(11)); //=> Error: should be even
+////console.info("sillySquare:", sillySquare(''));
+////console.info("sillySquare:", sillySquare(0));
+//
+////다른 예제.
+//var validateCommand = condition1(
+//    validator("arg must be a map", _.isObject),
+//    validator("arg must have the correct keys", hasKeys('msg', 'type')) //todo: 부분은 아래 오류메시지로 추가가 안되었음.
+//);
+//
+////todo: 왜 identity함수를 사용했나? 잘 이해안됨.
+////- 책 답변: 자바스크립트에서는 훈련과 심사숙고를 거쳐야 안정성이라는 목표를 달성할 수 있다.
+//var createCommand = partial(validateCommand, _.identity); //partial함수는 args를 넣어서 실행하는 함수
+////var createCommand = partial(validateCommand);
+//
+////console.info("createCommand:", createCommand({})); //=> Error: arg must have the correct keys
+////console.info("createCommand:", createCommand(21)); //=> Error: arg must be a map, arg must have the correct keys
+//console.info("createCommand:", createCommand({msg: "", type: ""})); //=> {msg: "", type: ""}
+//
+////todo: 이해하기 어려움
+//var createLaunchCommand = partial1( //todo: partial1이 왜 이게 필요한가?
+//    condition1(validator("arg must have the count down", hasKeys('countDown'))),
+//    createCommand); //todo: <== 이건 어떻게 실행이 되는 건가?
+//
+////console.info("createLaunchCommand:", createLaunchCommand({msg: "", type:""})); //=> Error: arg must have the count down
+//console.info("createLaunchCommand:", createLaunchCommand({msg: "", type: "", countDown: 10})); //=> {msg: "", type: "", countDown: 10}
+//
+////5.4 함수의 끝을 서로 연결하는 함수 조립 방법 (pipelining)
+////_.compose은 오른쪽에서 왼쪽으로 작동한다.
+//var isntString = _.compose(
+//    function (x) { //x: true -> false
+//        console.log("  x:", x);
+//        return !x
+//    },
+//    _.isString //true
+//);
+//console.info("isntString:", isntString([])); //=> true
+//
+//function not(x) {
+//    return !x
+//}
+//var isntString2 = _.compose(not, _.isString);
+//console.info("isntString2;", isntString2([])); //=> true
+//
+//var composedMapcat = _.compose(splat(cat), _.map); //todo: splat이 왜 필요한가?
+//
+////todo: 왜 identity가 필요한가?
+//console.info("composedMapcat:", composedMapcat([[1, 2], [3, 4], [5]], _.identity)); //=> [1, 2, 3, 4, 5]
+//
+//var composedMapcat2 = _.compose(cat, _.map);
+//
+//console.info("composedMapcat2:", JSON.stringify(composedMapcat2([1, 2], [3, 4], [5]))); //=> [[1,2],[3,4],[5]]
+//console.info("_.map:", JSON.stringify(_.map([[1, 2], [3, 4], [5]])));
+//console.info("cat:", JSON.stringify(cat([[1, 2], [3, 4], [5]])));
+//
+////5.4.1 조립을 이용해서 선행조건과 후행조건 만들기
+//
+//var sqrPost = condition1(
+//    validator("result should be a number", _.isNumber),
+//    validator("result should not be zero", complement(zero)),
+//    validator("result should be positive", greaterThan(0)));
+//
+////console.info("sqrPost;", sqrPost(_.identity, 0)); //Error: result should not be zero, result should be positive
+////console.info("sqrPost;", sqrPost(_.identity, -1));  // Error: result should be positive
+////console.info("sqrPost;", sqrPost(_.identity, '')); //Error: result should be a number, result should be positive
+//console.info("sqrPost;", sqrPost(_.identity, 100)); //=> 100
+//
+////질문: 후행검사 check 함수를 어떻게 기존의 uncheckedStr, sqrPre함수에 추가할 수 있는 을까?
+////- 답변: _.compose를 사용하면 된다.
+//
+////여기ㅐ서 identity는 왜 필요한가?
+////- 답변: checkedStr의 결과값을 _.identity인자로 넘겨줌)
+//var megaCheckedSqr = _.compose(
+//    partial(sqrPost, _.identity), //postcondition
+//    checkedSqr                    //precondition
+//);
+//
+//console.info("megaCheckedSqr:", megaCheckedSqr(10)); //=> 100
+////console.info("megaCheckedSqr:", megaCheckedSqr(0)); //=> Error: arg must not be zero
+////console.info("megaCheckedSqr:", megaCheckedSqr(NaN)); //Error: result should be positive

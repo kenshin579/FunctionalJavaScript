@@ -56,9 +56,8 @@ function LazyChain(obj) {
 }
 
 /**
- * invoke는 실제 메서드 호출을 클로저로 감사서 _calls 배열에 추가한다.
- *
- * 단점: 수동으로 target을 넣어줘야 한다.
+ * invoke는 실제 메서드 호출을 클로저로 감싸서 _calls 배열에 추가한다.
+ * - this._calls에 함수를 담게 되어 있다
  *
  * @param methodName
  * @returns {LazyChain}
@@ -67,7 +66,7 @@ LazyChain.prototype.invoke = function (methodName /*, args */) {
     var args = _.rest(arguments);
 
     this._calls.push(function (target) {
-        var meth = target[methodName]; //todo: 왜 이렇게 해서 apply를 해야 하나?
+        var meth = target[methodName];
         //console.log("meth:", target, "[", methodName, "]: ", meth);
 
         return meth.apply(target, args);
@@ -78,9 +77,11 @@ LazyChain.prototype.invoke = function (methodName /*, args */) {
 };
 
 console.info("LazyChain.invoke:",
-    new LazyChain([2, 1, 3]).invoke('sort')._calls); //=> [function(target)...]
-//console.info("LazyChain.invoke:",
-//    new LazyChain([2, 1, 3]).invoke('sort')._calls[0]()); //=> TypeError: Cannot read property 'sort' of undefined
+    new LazyChain([2, 1, 3]).invoke('sort')._calls);
+//=> [function(target)...]
+console.info("LazyChain.invoke:",
+    new LazyChain([2, 1, 3]).invoke('sort')._calls[0]());
+// => TypeError: Cannot read property 'sort' of undefined
 console.info("LazyChain.invoke:",
     new LazyChain([2, 1, 3]).invoke('sort')._calls[0]([2, 1, 3])); //=>  [1, 2, 3]
 
@@ -97,11 +98,6 @@ LazyChain.prototype.force = function () {
 
 console.info("LazyChain.prototype.force:",
     new LazyChain([2, 1, 3])
-        .invoke('sort')
-        .force()); //=> [1, 2, 3]
-
-console.info("LazyChain.prototype.force:",
-    new LazyChain([2, 1, 3])
         .invoke('concat', [9, 7, 6, 5])
         .invoke('sort')
         .invoke('join', ' ')
@@ -114,7 +110,7 @@ LazyChain.prototype.tap = function (fun) {
     });
 
     return this;
-}
+};
 
 console.info("LazyChain.prototype.tap:",
     new LazyChain([2, 1, 3])
@@ -201,7 +197,7 @@ function go() {
             setTimeout(function () {
                 d.resolve("done done done done");
             }, 15000)
-        })
+        });
 
     return d.promise();
 }
@@ -211,24 +207,27 @@ console.info("yearning:", yearning.state());
 
 //8.1 파이프라이닝
 /**
+ * 데이터값을 입력받아서 비파과적으로 변형한 다음에 새로운 데이터를 반환하는 식으로 호출 체인이 일어난다
+ * - 게이른 체인과 비슷하며 변이할 수 있는 레퍼런스보다는 값으로 작동한다.
  *
  * @param seed
  * @returns {*}
  */
 function pipeline(seed /*, args */) {
-    return _.reduce(_.rest(arguments),
-        function (l, r) {
+    return _.reduce(_.rest(arguments), //함수 리스트
+        function (l, r) { //l: array [..], r:함수
             return r(l);
         },
         seed);
-};
+}
 
 console.info("pipeline:",
     pipeline([2, 3, null, 1, 42, false],
-        _.compact,
-        _.initial,
-        _.rest,
-        rev)); //=> [1, 3]
+        _.compact,  //falsy values 제거함
+        _.initial,  //마지막 요소를 제외한
+        _.rest,     //첫번째 요소를 제외한
+        rev         //reverse
+    )); //=> [1, 3]
 
 //중첩 호출로 표한한다면:
 console.info(rev(_.rest(_.initial(_.compact([2, 3, null, 1, 42, false])))));
@@ -350,7 +349,6 @@ function actions(acts, done) {
 
 /**
  * sqr함수는 state 객체를 모르므로 mSqr이라는 adapter 함수를 만들어야 한다.
- * todo: 왜? okay
  *
  * @returns {Function}
  */

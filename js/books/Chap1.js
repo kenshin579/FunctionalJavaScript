@@ -1,9 +1,9 @@
 console.log("");
 console.warn("Chap1_________________________________________________________________________");
 
-//apply 메서드는 인자를 담은 배열 하나를 인자로 받음
 /**
  * 배열를 인자로 받아서 실행할 수 있는 함수를 반환한다.
+ * - apply 메서드는 인자를 담은 배열 하나를 인자로 실행함
  *
  * @param fun
  * @returns {Function}
@@ -18,7 +18,11 @@ var addArrayElements = splat(function (x, y) {
 });
 console.info("splat: ", addArrayElements([1, 2])); //=> 3
 
-//call은 arguments list를 인자로 받음
+/**
+ * call은 arguments list를 인자로 받음
+ * @param fun
+ * @returns {Function}
+ */
 function unsplat(fun) {
     return function () {
         return fun.call(null, _.toArray(arguments));
@@ -27,7 +31,7 @@ function unsplat(fun) {
 var joinElements = unsplat(function (array) {
     return array.join(' ')
 });
-console.info("unsplat: ",  joinElements(1, 2));
+console.info("unsplat: ", joinElements(1, 2));
 //=> "1 2"
 console.info(joinElements('-', '$', '/', '!', ':'));
 //=> "- $ / ! :"
@@ -49,7 +53,7 @@ function parseAgeV1(age) {
 
     return a;
 }
-console.info("parseAgeV1: ",  parseAgeV1("frob"));
+console.info("parseAgeV1: ", parseAgeV1("frob"));
 
 //함수를 추상화 시킴:
 //- 에러, 경고, 정보 출력 부분을 추상화 시킴
@@ -76,19 +80,19 @@ function parseAgeV2(age) {
 
     return a;
 }
-console.info("parseAgeV2: ",  parseAgeV2("frob"));
+console.info("parseAgeV2: ", parseAgeV2("frob"));
 
 //1.2.4 함수 - 동작 단위 (여러 동작으로
 var letters = ['a', 'b', 'c'];
-console.info("letters: ",  letters[1]);
+console.info("letters: ", letters[1]);
 //=> 'b'
 
 //배열 인덱싱 동작을 추상화함
 function naiveNth(a, index) {
     return a[index];
 }
-console.info("naiveNth: ",  naiveNth(letters, 2));
-console.info("naiveNth: ",  naiveNth({}, 2)); //=> undefined으로 출력됨
+console.info("naiveNth: ", naiveNth(letters, 2));
+console.info("naiveNth: ", naiveNth({}, 2)); //=> undefined으로 출력됨
 function isIndexed(data) {
     return _.isArray(data) || _.isString(data);
 }
@@ -101,7 +105,7 @@ function nth(a, index) {
 
     return a[index];
 }
-console.info("nth: ",  nth(letters, 1));
+console.info("nth: ", nth(letters, 1));
 //console.info("nth: ",  nth(letters, 3));
 //console.info("nth: ",  nth({}, 1));
 
@@ -109,7 +113,7 @@ console.info("nth: ",  nth(letters, 1));
 function second(a) {
     return nth(a, 1);
 }
-console.info("second: ",  second(letters));
+console.info("second: ", second(letters));
 
 function compareLessThanOrEqual(x, y) {
     if (x < y) return -1;
@@ -117,7 +121,7 @@ function compareLessThanOrEqual(x, y) {
     return 0;
 }
 
-console.info("compareLessThanOrEqual: ",  [2, 3, -1, -6, 0, -108, 42, 10].sort(compareLessThanOrEqual));
+console.info("compareLessThanOrEqual: ", [2, 3, -1, -6, 0, -108, 42, 10].sort(compareLessThanOrEqual));
 //=> [-108, -6, -1, 0, 2, 3, 10, 42]
 
 
@@ -125,9 +129,14 @@ console.info("compareLessThanOrEqual: ",  [2, 3, -1, -6, 0, -108, 42, 10].sort(c
 function lessOrEqual(x, y) {
     return x <= y;
 }
-console.info("lessOrEqual: ",  [2, 3, -1, -6, 0, -108, 42, 10].sort(lessOrEqual));
+console.info("lessOrEqual: ", [2, 3, -1, -6, 0, -108, 42, 10].sort(lessOrEqual));
 
-//comparator는 -1/0/1중 하나는 변환하는 함수
+/**
+ * comparator는 -1/0/1중 하나는 변환하는 함수
+ *
+ * @param pred
+ * @returns {Function}
+ */
 function comparator(pred) {
     return function (x, y) {
         if (pred(x, y))
@@ -138,11 +147,17 @@ function comparator(pred) {
             return 0;
     };
 };
-console.info("comparator: ",  [2, 3, -1, -6, 0, -108, 42, 10].sort(comparator(lessOrEqual)));
+console.info("comparator: ", [2, 3, -1, -6, 0, -108, 42, 10].sort(comparator(lessOrEqual)));
 
 //1.2.5 데이터 추상화
 //-comparator 함수처럼 함수형 프로그래밍에서는 하나의 데이터를 다른 형태의 데이터로 변환하는 것이 핵심이다
-function lameCSV(str) { //=> [['name', 'age', 'hair'], ['Merble', 35, 'red'], ['Bob', 64, 'blonde']]
+/**
+ * CSV string -> JSON 객체로 convert함
+ *
+ * @param str
+ * @returns {*}
+ */
+function lameCSV(str) {
     //["name,age,hair", "Merble,35,red", "Bob,64,blonde"]
     return _.reduce(str.split("\n"), function (prevTable, currentRow) { //reduce는 하나의 값으로 return함
             prevTable.push(
@@ -153,21 +168,22 @@ function lameCSV(str) { //=> [['name', 'age', 'hair'], ['Merble', 35, 'red'], ['
             return prevTable; //하나값이 table을 return함 reduce에서
         }
         , []); //_.reduce prevTable값을 []로 시작하게 함
-};
+}
 var peopleTable = lameCSV("name,age,hair\nMerble,35,red\nBob,64,blonde");
-console.info("lameCSV: ",  peopleTable);
+console.info("lameCSV: ", JSON.stringify(peopleTable));
+//=> [['name', 'age', 'hair'], ['Merble', 35, 'red'], ['Bob', 64, 'blonde']]
 
-console.info("_.rest: ",  _.isArray(peopleTable[1])); //=> true
-console.info("_.rest: ",  peopleTable[1]); //=> [Merble,35,red]
-console.info("_.rest: ",  _.rest(peopleTable)); //=> [[Merble,35,red],[Bob,64,blonde]]
-console.info("_.rest.sort(): ",  _.rest(peopleTable).sort());
+console.info("_.rest: ", _.isArray(peopleTable[1])); //=> true
+console.info("_.rest: ", peopleTable[1]); //=> [Merble,35,red]
+console.info("_.rest: ", _.rest(peopleTable)); //=> [[Merble,35,red],[Bob,64,blonde]]
+console.info("_.rest.sort(): ", _.rest(peopleTable).sort());
 
 function selectNames(table) {
-    return _.rest(_.map(table, _.first)); //todo: _.first 인자를 넘기지 않았음? 이건 어떻게 이해하면 되나?
+    return _.rest(_.map(table, _.first));
 }
 
 function selectAges(table) {
-    return _.rest(_.map(table, second)); //todo: second함수는 인자 하나를 받게 되어 있는 함수이다.
+    return _.rest(_.map(table, second));
 }
 
 function selectHairColor(table) {
@@ -177,10 +193,10 @@ function selectHairColor(table) {
 }
 var mergeResults = _.zip;
 //참고 peopleTable = [['name', 'age', 'hair'], ['Merble', 35, 'red'], ['Bob', 64, 'blonde']]
-console.info("selectNames: ",  selectNames(peopleTable));
-console.info("selectAges: ",  selectAges(peopleTable));
-console.info("selectHairColor: ",  selectHairColor(peopleTable));
-console.info("mergeResults: ",  mergeResults(selectNames(peopleTable), selectHairColor(peopleTable)));
+console.info("selectNames: ", selectNames(peopleTable)); //=> ['Merble', 'Bob']
+console.info("selectAges: ", selectAges(peopleTable)); //=> ['
+console.info("selectHairColor: ", selectHairColor(peopleTable));
+console.info("mergeResults: ", mergeResults(selectNames(peopleTable), selectHairColor(peopleTable)));
 
 /**
  * 뭔가 존재하는지 여부를 알려주는 함수
@@ -189,7 +205,7 @@ console.info("mergeResults: ",  mergeResults(selectNames(peopleTable), selectHai
  */
 function existy(x) {
     return x != null
-};
+}
 
 /**
  * 어떤 것이 참인지 여부를 결정하는 함수
@@ -198,9 +214,15 @@ function existy(x) {
  */
 function truthy(x) {
     return (x !== false) && existy(x)
-};
+}
 
-//일반적인 형태의 패턴의 예
+/**
+ * 조건이 참일때만 어떤 동작을 수행하는 함수
+ *
+ * @param cond
+ * @param action
+ * @returns {*}
+ */
 function doWhen(cond, action) {
     if (truthy(cond))
         return action();
@@ -215,7 +237,8 @@ function executeIfHasField(target, name) {
         return result;
     });
 }
-console.info("executeIfHasField: ",  executeIfHasField([1, 2, 3], 'reverse')); //[].reverse 함수 property가 존재함
-console.info("executeIfHasField: ",  executeIfHasField({foo: 42}, 'foo')); //=>42
-console.info("executeIfHasField: ",  executeIfHasField([1, 2, 3], 'notHere')); //=>undefined
+
+console.info("executeIfHasField: ", executeIfHasField([1, 2, 3], 'reverse')); //[].reverse 함수 property가 존재함
+console.info("executeIfHasField: ", executeIfHasField({foo: 42}, 'foo')); //=>42
+console.info("executeIfHasField: ", executeIfHasField([1, 2, 3], 'notHere')); //=>undefined
 

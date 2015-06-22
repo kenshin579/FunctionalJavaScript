@@ -78,7 +78,7 @@ function Point3D(x, y, z) {
 }
 console.log(new Point3D(2, 3, 4));
 
-//2.2 응용형 프로그래밍: 함수 A 내부의 함수 B를 호출하는 형식으로 이루어짐
+//2.2 응용형 프로그래밍
 //-함수 A의 결과를 함수 B의 인자로 제공한다: ex. map, reduce, filter 내부에서 다른 함수가 호출됨
 var nums = [1, 2, 3, 4, 5];
 function doubleAll(array) {
@@ -103,7 +103,7 @@ function onlyEven(array) {
         return (n % 2) === 0;
     });
 }
-console.info("onlyEven: ", onlyEven(nums)); //=> [2, 4]
+console.info("onlyEven: ", onlyEven([1, 2, 3, 4, 5])); //=> [2, 4]
 
 //2.2.1 컬렉션 중심 프로그래밍: 컬렉션에 포함된 많은 아이템을 처리해야 할 때 함수형 프로그래밍의 진가가 발휘됨
 console.log(_.map({a: 1, b: 2}, _.identity));
@@ -152,22 +152,30 @@ console.log("_.reject: ", _.reject(['a', 'b', 3, 'd'], _.isNumber)); //=>a,b,d
 console.log("_.filter: ", _.filter(['a', 'b', 3, 'd'], _.isNumber)); //=>3
 console.log("_.filter: ", _.filter(['a', 'b', 3, 'd'], complement(_.isNumber))); //=>a,b,d
 
-//Array & Apply에 대한 참고내용: http://www.2ality.com/2012/07/apply-tricks.html
-//1.인자에 array로 넘겨줄수 없는 함수에도 넘겨주도록 할 수 있다 (appy로)
+/*
+ Array & Apply에 대한 고찰
+ - 참고: http://www.2ality.com/2012/07/apply-tricks.html
+ */
+
+//1.인자에 array로 넘겨줄수 없는 함수에도 넘겨주도록 할 수 있다 (apply로)
 console.log("1.Handing an array to func: ", Math.max.apply(null, [10, -5, -1]));
+
 //2.array 중간에 값이 없는 경우에 holes을 제거하는 역할을 함 (하지만, 완전하지 않음)
 console.log("2. Eliminating holes: ", Array.apply(null, ["a", , "b"]));
 console.log("2a. Eliminating holes(문제접도 있다): ", Array.apply(null, [3])); //empthy with len 3으로 인식
+
+//3.flatten an array가 가능하다
 console.log("3.flatten an array: ", Array.prototype.concat.apply([], [["a"], ["b"]]));
 console.log("3a: ", Array.prototype.concat.apply([], [["a"], "b"]));
 console.log("3b", JSON.stringify(Array.prototype.concat.apply([], [[["a"]], ["b"]])));
 console.log("_.flatten", _.flatten([[["a"]], ["b"]]));
 
-//2.2.3: 응용형 함수란: 다른 함수를 인자로 받는 함수를 정의하고 그 다음에 인자로 받은 함수를 호출하는 형태
+//2.2.3: 응용형 함수란
 /**
  * 여러 array를 하나의 array로 합쳐주는 역할을 함
  *
- * - concat은 새로운 array를 반환한다.
+ * - concat은 새로운 array를 반환한다. (immunity 함수임)
+ *
  * @returns {*}
  */
 function cat() {
@@ -176,7 +184,7 @@ function cat() {
     if (existy(head)) {
         var rest = _.rest(arguments);
         //console.log("rest: ", JSON.stringify(rest)); //[[4,5],[6,7,8]]
-        return head.concat.apply(head, rest); //concat.apply를 한것과 그냥 concat의 차이점은?
+        return head.concat.apply(head, rest); //질문: concat.apply를 한것과 그냥 concat의 차이점은? 없음.
     }
     else {
         //console.log("else: ");
@@ -188,7 +196,7 @@ console.log("cat: ", cat([1, 2, 3], [4, 5], [6, 7, 8]));//=> [1, 2, 3, 4, 5, 6, 
 //아래 construct는 응용형 함수가 아니다. 인자로 받은 함수를 호출하지 않았음.
 
 /**
- * 모든 array로 조합해서 하나의 array로 return함
+ * 요소와 배열을 인자로 받아 배열 앞에 요소를 추가하는 함수임
  *
  * @param head
  * @param tail
@@ -200,7 +208,7 @@ function construct(head, tail) {
 
 console.log("construct: ", construct(42, [1, 2, 3])); //=> [42, 1, 2, 3]
 
-//응용형 함수
+//2.2.3 응용형 함수
 /**
  * fun이라는 함수를 인자로 받아 _.map처럼 인자로 제공된 켈렉션의 모든 요소에 함수(, 합치는)를 실행한다.
  *
@@ -250,9 +258,9 @@ var zombie = {name: "Bub", film: "Day of the Dead"};
 console.info("_.keys: ", _.keys(zombie)); //=> ["name", "film"]
 console.info("_.values: ", _.values(zombie));//=> ["Bub", "Day of the Dead"]
 console.info("_.object: ", JSON.stringify(
-        _.object(
+        _.object( //array -> map object 형식으로 바꿈
             _.map(
-                _.pairs( //array -> map object 형식으로 바꿈
+                _.pairs( //map object -> array 형식으로 바꿈
                     zombie
                 ),
                 function (pair) {
@@ -262,7 +270,9 @@ console.info("_.object: ", JSON.stringify(
         )
     )
 ); //=> {NAME: "Bub", FILM: "Day of the Dead"}
+
 console.info("_.invert: ", _.invert(zombie));
+//=> {Bub: "name", Day of the Dead: "film"}
 
 //객체에 삽입하는 예제
 console.info("_.pluck: ", _.pluck(
@@ -270,7 +280,7 @@ console.info("_.pluck: ", _.pluck(
             [
                 {title: "Chthon", author: "Anthony"},
                 {title: "Grendel", author: "Gardner"},
-                {title: "After Dark"} //여기 끝에 삽입하려고 함
+                {title: "After Dark"} //<--여기 끝에 삽입하려고 함
             ],
             function (obj) {
                 console.log(obj);
@@ -286,7 +296,9 @@ var creds = _.pick(person, "token", "password");
 console.info("_.omit: ", info);
 console.info("_.pick: ", creds);
 
-
+/*
+ 2.3.1 '테이블 형식'의 데이터
+ */
 var library = [
     {title: "SICP", isbn: "0262010771", ed: 1},
     {title: "SICP", isbn: "0262510871", ed: 2},
@@ -314,26 +326,43 @@ function project(table, keys) {
     return _.map(table, function (obj) {
         var pickParameters = construct(obj, keys); //[{"title":"SICP","isbn":"0262010771","ed":1},"title","isbn"]
         console.log(JSON.stringify(pickParameters));
-        //return _.pick(construct(obj, keys)); //pick에서 array로 인자를 받지 않기 때문
-        return _.pick.apply(null, pickParameters); //todo: 왜 apply를 하나? array로 넘겨주기 위해서임
+        //return _.pick(construct(obj, keys));
+        //질문: 왜 apply를 하나? _.pick함수는 여러 인자를 한번에 array로 넘겨주기 위함
+        return _.pick.apply(null, pickParameters); //_.pick: 원하는 keys만 선택해서 복사본 객체를 반환함
 
     });
-};
+}
 var editionResults = project(library, ['title', 'isbn']);
 console.info("editionResults: ", JSON.stringify(editionResults));
+//=>
+//"[{'title': 'SICP', 'isbn': '0262010771'}, {'title': 'SICP', 'isbn': '0262510871'}, {'title': 'Joy of Clojure', 'isbn': '1935182641'}]"
+//"[{'title': 'SICP', 'isbn': '0262010771'}, 'isbn']"
+//"[{'title': 'SICP', 'isbn': '0262510871'}, 'isbn']"
+//"[{'title': 'Joy of Clojure', 'isbn': '1935182641'}, 'isbn']
 
 var isbnResults = project(editionResults, ['isbn']);
 console.info("isbnResults: ", JSON.stringify(isbnResults));
+//=> "[{'isbn': '0262010771'}, {'isbn': '0262510871'}, {'isbn': '1935182641'}]"
 
-console.log("initValue: ", _.omit.apply(null, construct({a: 1, b: 2}, _.keys({'a': 'AAA'}))));
-console.log("initValue: ", _.omit.apply(null, construct({a: 1, b: 2, c: 3, d: 4}, _.keys({'a': 'AAA'}))));
+console.log("initValue: ", _.omit.apply(null, construct({a: 1, b: 2}, _.keys({'a': 'AAA'})))); //=> {b: 2}
+console.log("initValue: ", _.omit.apply(null, construct({a: 1, b: 2, c: 3, d: 4}, _.keys({'a': 'AAA'})))); //=> {b: 2, c: 3, d: 4}
+
+/**
+ * 객체의 이름을 바꿈
+ * - 아이디어:
+ * 1. a를 제외한 객체로 시작해서 새로운 이름으로 객체에 추가하는 방식임
+ *
+ * @param obj
+ * @param newNames
+ * @returns {*}
+ */
 function rename(obj, newNames) {
     return _.reduce(
-        newNames,
+        newNames, //{'a':'AAA"}로 시작함 (결국 여기서는 한번 호출됨)
         function (prevObj, nuValue, oldKey) {
-            console.log("o: ", prevObj, "newKeyInValue:", nuValue, "oldKey:", oldKey);
+            console.log("o: ", prevObj, "newKeyInValue:", nuValue, "oldKey:", oldKey); //=> {b: 2} newKeyInValue: AAA oldKey: a
             if (_.has(obj, oldKey)) {
-                prevObj[nuValue] = obj[oldKey]; //추가함
+                prevObj[nuValue] = obj[oldKey]; //새로운 키로 추가함
                 return prevObj;
             }
             else {
@@ -342,16 +371,27 @@ function rename(obj, newNames) {
         },
         _.omit.apply(null, construct(obj, _.keys(newNames))) //첫 initValue => 'a'를 제외한 나머지로 시작함, {b: 2}
     );
-};
+}
 console.info("rename: ", rename({a: 1, b: 2}, {'a': 'AAA'})); //=> {b: 2, AAA: 1}
 console.info("rename: ", rename({a: 1, b: 2, c: 3, d: 4}, {'a': 'AAA'})); //=> {b: 2, c: 3, d: 4, AAA: 1}
 
+/**
+ * SQL의 rename을 구현함
+ *
+ * @param table
+ * @param newNames
+ * @returns {*|Array}
+ */
 function as(table, newNames) {
     return _.map(table, function (obj) {
         return rename(obj, newNames);
     });
-};
+}
 console.info("as: ", JSON.stringify(as(library, {ed: 'edition'})));
+//=>
+//"[{\"title\": \"SICP\", \"isbn\": \"0262010771\", \"edition\": 1},
+// {\"title\": \"SICP\", \"isbn\": \"0262510871\", \"edition\": 2},
+// {\"title\": \"Joy of Clojure\", \"isbn\": \"1935182641\", \"edition\": 1}]"
 
 /**
  * SQL의 where 함수 구현
@@ -373,7 +413,7 @@ function restrict(table, pred) {
             }
         },
         table);
-};
+}
 
 console.info("restrict: ", JSON.stringify(
     restrict(library, function (book) {
