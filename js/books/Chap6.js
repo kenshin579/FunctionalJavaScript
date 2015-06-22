@@ -202,14 +202,10 @@ function tcLength(ary, n) {
         console.log("   tcLength.if > l:", l);
         return l; //마지막 결과가 됨
     } else {
-        console.log("   tcLength.else(", _.rest(ary), ",", l + 1, "):", tcLength(_.rest(ary), l + 1));
+        //console.log("   tcLength.else(", _.rest(ary), ",", l + 1, "):", tcLength(_.rest(ary), l + 1));
         return tcLength(_.rest(ary), l + 1);
     }
 }
-
-//console.log("_.range(0):", _.range(0)); //=> []
-//console.log("_.range(1):", _.range(1)); //=> [0]
-//console.log("_.range(2):", _.range(2)); //=> [0, 1]
 
 console.info("tcLength:", tcLength(_.range(1))); //=> 10
 

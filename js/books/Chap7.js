@@ -173,7 +173,7 @@ console.info("_.extend:", _.extend(person, {lname: "Petrikov"}, {age: 28}, {age:
 /**
  * 변이 되지 않도록 수정한 버전
  * todo: 적확하게 이해되지는 않는다. 왜 변의되지 않는지? 그리고 왜 construct를 사용했는지?
- * - cat() 함수에 있는 concat에서 새로운 array를 반환한다. cat은 불변성을 깨뜨지 않음
+ * 답변: - cat() 함수에 있는 concat에서 새로운 array를 반환한다. cat은 불변성을 깨뜨지 않음
  * 의도는 {}<-이게 첫번째 인자가 되게 함
  */
 function merge(/*args*/) {

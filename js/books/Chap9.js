@@ -467,7 +467,7 @@ var SwapMixin = {
     }
 };
 
-//todo: 이해가 잘 안됨
+//todo: 아래 코드 잘 이해가 안됨
 var o = {_value: 0, setValue: _.identity};
 console.info("_.extend:", _.extend(o, SwapMixin));
 console.info("o.swap:", o.swap(construct, [1, 2, 3])); //=> [0, 1, 2, 3]
